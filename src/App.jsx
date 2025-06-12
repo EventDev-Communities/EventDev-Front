@@ -10,12 +10,12 @@ import CommunityRegister from '@/pages/CommunityRegister'
 import Navbar from '@/shared/components/Navbar'
 import Footer from '@/shared/components/Footer'
 import CommunityProfile from './pages/CommunityProfile'
+import PageNotFound from './pages/PageNotFound'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Navbar />
-
       <Routes>
         <Route
           path='/'
@@ -44,6 +44,10 @@ export default function App() {
         <Route
           path='/perfil-comunidade/:communitySlug'
           element={<CommunityProfile />}
+        />
+        <Route
+          path='*'
+          element={<PageNotFound />}
         />
       </Routes>
 
