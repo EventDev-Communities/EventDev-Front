@@ -42,7 +42,7 @@ export default function App() {
           element={<CreateEvent />}
         />
         <Route
-          path='/perfil-comunidade/:communityId'
+          path='/perfil-comunidade/:communitySlug'
           element={<CommunityProfile />}
         />
       </Routes>

@@ -11,21 +11,18 @@ export default function FormLogin() {
       className={styles.container}
       component='form'
       noValidate
-      autoComplete='on'
-    >
+      autoComplete='on'>
       <div className={styles.titleContainer}>
         <Typography
           variant='h2'
           component='h2'
-          sx={{ marginBottom: '1rem' }}
-        >
+          sx={{ marginBottom: '1rem' }}>
           Bem vindo ao <span className={styles.gradientText}>EVENT DEV</span>
         </Typography>
         <Typography
           variant='body1'
           component='p'
-          sx={{ color: '#64748B' }}
-        >
+          sx={{ color: '#64748B' }}>
           Entre na sua conta agora e comece a criar seus eventos.
         </Typography>
       </div>
@@ -36,8 +33,7 @@ export default function FormLogin() {
           htmlFor='email'
           variant='subtitle1'
           fontWeight='bold'
-          sx={{ marginTop: '1rem' }}
-        >
+          sx={{ marginTop: '1rem' }}>
           Email
         </Typography>
         <TextField
@@ -54,8 +50,7 @@ export default function FormLogin() {
           htmlFor='password'
           variant='subtitle1'
           fontWeight='bold'
-          sx={{ marginTop: '1rem' }}
-        >
+          sx={{ marginTop: '1rem' }}>
           Senha
         </Typography>
         <TextField
@@ -67,34 +62,30 @@ export default function FormLogin() {
         />
       </div>
       <Button
-        className={styles.btn}
+        sx={{ marginTop: '1rem', width: '100%' }}
         type='submit'
-        variant='contained'
-      >
+        variant='contained'>
         Entrar
       </Button>
       <Typography
         variant='body2'
         component='p'
         sx={{ marginTop: '1rem', textAlign: 'center' }}
-        underline='hover'
-      >
+        underline='hover'>
         Ainda não tem uma conta?{' '}
         <Link
           href='/cadastro-comunidade'
           underline='hover'
           color='text.secondary'
           display='block'
-          sx={{ color: '#FC692D', textDecoration: 'none', fontWeight: 'bold' }}
-        >
+          sx={{ color: '#FC692D', textDecoration: 'none', fontWeight: 'bold' }}>
           Cadastre-se aqui
         </Link>
       </Typography>
       <Typography
         variant='body1'
         component='p'
-        sx={{ marginTop: '1.5rem', color: '#64748B', fontSize: '1.20rem' }}
-      >
+        sx={{ marginTop: '1.5rem', color: '#64748B', fontSize: '1.20rem' }}>
         Ao continuar, você concorda com nossos Termos de Serviço e Política de Privacidade.
       </Typography>
     </Box>

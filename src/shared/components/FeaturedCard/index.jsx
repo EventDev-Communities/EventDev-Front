@@ -4,55 +4,78 @@ import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 import CardActionArea from '@mui/material/CardActionArea'
 import Link from '@mui/material/Link'
+import { useNavigate } from 'react-router-dom'
 
-import profile from '@/shared/assets/static/images/profile.png'
+export default function FeaturedCard({ comunidade }) {
+  const navigate = useNavigate()
 
-export default function FeaturedCard() {
+  const handleLinkClick = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    navigate(`/perfil-comunidade/${comunidade.slug}`)
+  }
+
   return (
     <Card
+      onClick={handleLinkClick}
       sx={{
-        width: { xs: '100%', sm: '49%', md: '23.5%' },
+        width: { xs: '100%', sm: '49%', md: '32%', lg: '23.5%' },
+        display: 'flex',
         flexDirection: 'column',
-        textAlign: 'center'
+        textAlign: 'center',
+        justifyContent: 'space-between'
       }}>
       <CardActionArea
         sx={{
           paddingTop: '3rem',
           paddingBottom: '2rem',
-          paddingX: { xs: '10%', sm: '20%', md: '5%', lg: '7.5%' }
+          paddingX: { xs: '10%', sm: '20%', md: '5%', lg: '7.5%' },
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%'
         }}>
         <CardMedia
           component='img'
-          image={profile}
-          alt='Ícone Comunidade'
+          image={comunidade.logo_url}
+          alt={`Logo da comunidade ${comunidade.nome}`}
           sx={{
-            height: '100%',
+            height: '100px',
             width: '100px',
+            borderRadius: '50%',
             display: 'flex',
-            justifySelf: 'center'
+            justifySelf: 'center',
+            margin: '0 auto'
           }}
         />
 
-        <CardContent>
+        <CardContent sx={{ flexGrow: 1 }}>
           <Typography
             variant='h5'
             paddingBottom='20px'>
-            Lizard
+            {comunidade.nome}
           </Typography>
 
           <Typography
-            variant='body3'
+            variant='body2'
+            color='text.secondary'
             sx={{
-              color: 'text.secondary'
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
             }}>
-            Lizards are a widespread group of squamate reptiles, with over 6,000 species.
+            {comunidade.descricao}
           </Typography>
         </CardContent>
 
         <Link
           fontWeight={700}
           underline='hover'
-          variant='caption'>
+          variant='caption'
+          href={`/perfil-comunidade/${comunidade.slug}`}
+          onClick={handleLinkClick}
+          sx={{ marginTop: 'auto' }}>
           Ver perfil
         </Link>
       </CardActionArea>

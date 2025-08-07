@@ -291,7 +291,6 @@ export default function CommunityRegister() {
             sx={{
               marginTop: '1rem'
             }}
-            color='primary'
             type='submit'
             variant='contained'>
             Cadastrar Comunidade

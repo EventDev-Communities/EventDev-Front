@@ -138,18 +138,20 @@ export default function Navbar() {
                 }
               }}>
               {pages.map((page) => (
-                <MenuItem key={page}>
-                  <Typography
-                    sx={{
-                      'textAlign': 'center',
-                      'color': 'text.main',
-                      '&:hover': {
-                        color: 'primary.primary',
-                        backgroundColor: 'transparent' // opcional, remove fundo cinza
-                      }
-                    }}>
-                    {page}
-                  </Typography>
+                <MenuItem
+                  key={page}
+                  component='a'
+                  href={`/${page.toLowerCase()}`}
+                  onClick={handleCloseNavMenu}
+                  sx={{
+                    'textAlign': 'center',
+                    'color': 'text.main',
+                    '&:hover': {
+                      color: 'primary.main',
+                      backgroundColor: 'transparent'
+                    }
+                  }}>
+                  {page}
                 </MenuItem>
               ))}
             </Menu>

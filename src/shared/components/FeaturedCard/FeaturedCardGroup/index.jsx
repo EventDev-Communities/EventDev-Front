@@ -1,22 +1,23 @@
 import Box from '@mui/material/Box'
-
 import FeaturedCard from '@/shared/components/FeaturedCard'
 
-export default function FeaturedCardGroup() {
+export default function FeaturedCardGroup({ comunidades }) {
   return (
     <Box
       sx={{
         display: 'flex',
         flexWrap: 'wrap',
         marginTop: '1.5rem',
-        rowGap: { xs: '20px', sm: '10px' },
+        rowGap: { xs: '10px', sm: '10px' },
         columnGap: { sm: '10px', md: '10px' },
-        justifyContent: { sm: 'stretch', md: 'space-between' }
+        justifyContent: { sm: 'stretch', md: 'center' }
       }}>
-      <FeaturedCard />
-      <FeaturedCard />
-      <FeaturedCard />
-      <FeaturedCard />
+      {comunidades.map((comunidade) => (
+        <FeaturedCard
+          key={comunidade.id}
+          comunidade={comunidade}
+        />
+      ))}
     </Box>
   )
 }

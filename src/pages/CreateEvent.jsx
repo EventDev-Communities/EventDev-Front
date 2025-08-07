@@ -234,7 +234,6 @@ export default function CreateEvent() {
           </Box>
 
           <Button
-            sx={{ backgroundColor: '#fc692d', color: '#FFFFFF', mt: '1rem', mb: '2rem', px: '3rem' }}
             type='submit'
             variant='contained'>
             Criar Evento

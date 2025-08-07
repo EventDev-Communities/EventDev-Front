@@ -2,7 +2,7 @@ import Box from '@mui/material/Box'
 
 import CardEvent from '@/shared/components/CardEvent'
 
-export default function CardEventGroup() {
+export default function CardEventGroup({ eventos }) {
   return (
     <Box
       sx={{
@@ -20,9 +20,16 @@ export default function CardEventGroup() {
         },
         gap: '1rem'
       }}>
-      <CardEvent />
-      <CardEvent />
-      <CardEvent />
+      {eventos && eventos.length > 0 ? (
+        eventos.map((evento) => (
+          <CardEvent
+            key={evento.id}
+            evento={evento}
+          />
+        ))
+      ) : (
+        <p>Sem eventos para mostrar</p>
+      )}
     </Box>
   )
 }

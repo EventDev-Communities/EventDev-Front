@@ -4,27 +4,56 @@ import Searchbar from '@/shared/components/Searchbar'
 import FeaturedCardGroup from '@/shared/components/FeaturedCard/FeaturedCardGroup'
 import Pagination from '@mui/material/Pagination'
 import Box from '@mui/material/Box'
-import { useState } from 'react'
-import React from 'react'
-import CardEventHorizontal from '@/shared/components/CardEvent/CardEventHorizontal'
+import { useState, useEffect } from 'react'
+import { getComunidades } from '../api/comunidades'
+import CircularProgress from '@mui/material/CircularProgress'
+
 export default function Communities() {
+  const [comunidades, setComunidades] = useState([])
   const [page, setPage] = useState(1)
-  const groups = [
-    ['comunidade 1', 'comunidade 2'],
-    ['comunidade 3', 'comunidade 4'],
-    ['comunidade 5', 'comunidade 6'],
-    ['comunidade 7', 'comunidade 8'],
-    ['comunidade 9']
-  ]
+  const [loading, setLoading] = useState(true)
+  const groupsPerPage = 8
 
-  const groupsPerPage = 2
-  const pageCount = Math.ceil(groups.length / groupsPerPage)
+  useEffect(() => {
+    const fetchComunidades = async () => {
+      try {
+        const result = await getComunidades()
+        setComunidades(result)
+      } catch (error) {
+        console.error('Erro ao buscar comunidades:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  const groupsToShow = groups.slice((page - 1) * groupsPerPage, page * groupsPerPage)
+    fetchComunidades()
+  }, [])
 
-  const handleChangePage = (_communities, value) => {
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          backgroundColor: 'white'
+        }}>
+        <CircularProgress sx={{ color: 'primary.main' }} />
+      </Box>
+    )
+  }
+
+  const startIndex = (page - 1) * groupsPerPage
+  const endIndex = startIndex + groupsPerPage
+  const comunidadesToShow = comunidades.slice(startIndex, endIndex)
+
+  const pageCount = Math.ceil(comunidades.length / groupsPerPage)
+
+  const handleChangePage = (_event, value) => {
     setPage(value)
   }
+
   return (
     <Container
       maxWidth='xl'
@@ -47,21 +76,18 @@ export default function Communities() {
           Encontre comunidades de desenvolvedores para participar de eventos e discussões.
         </Typography>
       </Typography>
+
       <Searchbar
         showToggle={false}
-        placeholderText={'Buscar comunidade...'}
+        placeholderText='Buscar comunidade...'
         filterOptions={[
           { value: 'recent', label: 'Mais recentes' },
           { value: 'popular', label: 'Mais populares' },
           { value: 'alphabetical', label: 'Ordem alfabética' }
         ]}
       />
-      {groupsToShow.map((groupCommunities, index) => (
-        <FeaturedCardGroup
-          key={index}
-          communities={groupCommunities}
-        />
-      ))}
+
+      <FeaturedCardGroup comunidades={comunidadesToShow} />
 
       {pageCount > 1 && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>

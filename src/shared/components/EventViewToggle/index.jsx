@@ -1,12 +1,8 @@
-import { useState } from 'react'
-
 import Box from '@mui/material/Box'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
-export default function EventViewToggle() {
-  const [eventType, setEventType] = useState('proximos')
-
+export default function EventViewToggle({ eventType, setEventType }) {
   return (
     <Box>
       <Box

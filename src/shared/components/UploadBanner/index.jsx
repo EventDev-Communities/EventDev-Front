@@ -22,8 +22,7 @@ export default function BannerImg() {
       <Typography
         variant='subtitle1'
         fontWeight='bold'
-        sx={{ marginBottom: '0.5rem' }}
-      >
+        sx={{ marginBottom: '0.5rem' }}>
         Imagem da Capa
       </Typography>
 
@@ -45,8 +44,7 @@ export default function BannerImg() {
           minHeight: 150, // altura mínima para garantir espaço
           boxSizing: 'border-box', // para o padding contar dentro da box
           width: '100%'
-        }}
-      >
+        }}>
         <CloudUploadIcon sx={{ fontSize: 40, mb: 1 }} />
         <Typography>Clique para enviar uma imagem</Typography>
         <Typography variant='caption'>PNG, JPG ou JPEG (máx. 5MB)</Typography>
@@ -62,8 +60,7 @@ export default function BannerImg() {
       {fileName && (
         <Typography
           variant='body2'
-          sx={{ mt: 1 }}
-        >
+          sx={{ mt: 1 }}>
           Arquivo selecionado: <strong>{fileName}</strong>
         </Typography>
       )}
@@ -85,9 +82,9 @@ export default function BannerImg() {
       {/* Nota explicativa */}
       <Typography
         variant='caption'
-        sx={{ mt: 1, display: 'block', color: 'text.secondary' }}
-      >
-        Uma imagem atrativa para seu evento (formatos recomendados: jpg, png)
+        sx={{ mt: 1, display: 'block', color: 'text.secondary' }}>
+        Uma imagem atrativa para seu evento (formatos recomendados: jpg, png). Recomendamos usar imagens com tamanho e proporção semelhantes aos posts
+        do Instagram para melhor visualização.
       </Typography>
     </Box>
   )
