@@ -6,42 +6,45 @@ import SectionHeader from '@/shared/components/SectionHeader'
 import EventViewToggle from '@/shared/components/EventViewToggle'
 import CardEventGroup from '@/shared/components/CardEvent/CardEventGroup'
 import FeaturedCardGroup from '@/shared/components/FeaturedCard/FeaturedCardGroup'
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { getEventos } from '../api/eventos'
+import { getComunidades } from '../api/comunidades'
 import CircularProgress from '@mui/material/CircularProgress'
+import Typography from '@mui/material/Typography'
 
 export default function Home() {
-  const [comunidades, setComunidades] = useState([])
-  const [eventos, setEventos] = useState([])
-  const [loading, setLoading] = useState(true)
   const [eventType, setEventType] = useState('todos')
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [comunidadesRes, eventosData] = await Promise.all([axios.get('http://localhost:4000/comunidades'), getEventos()])
+  const {
+    data: comunidades,
+    isLoading: isLoadingComunidades,
+    error: errorComunidades
+  } = useQuery({
+    queryKey: ['comunidades'],
+    queryFn: getComunidades
+  })
 
-        setComunidades(comunidadesRes.data)
-        setEventos(eventosData)
-      } catch (error) {
-        console.error('Erro ao buscar dados:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
+  const {
+    data: eventos,
+    isLoading: isLoadingEventos,
+    error: errorEventos
+  } = useQuery({
+    queryKey: ['eventos'],
+    queryFn: getEventos
+  })
 
-    fetchData()
-  }, [])
+  const isLoading = isLoadingComunidades || isLoadingEventos
+  const error = errorComunidades || errorEventos
 
-  const filteredEventos = eventos.filter((evento) => {
+  const filteredEventos = eventos?.filter((evento) => {
     if (eventType === 'todos') return true
     if (eventType === 'online') return evento.online === true
     if (eventType === 'presencial') return evento.online === false
     return true
   })
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Box
         sx={{
@@ -52,6 +55,25 @@ export default function Home() {
           backgroundColor: 'white'
         }}>
         <CircularProgress sx={{ color: 'primary.main' }} />
+      </Box>
+    )
+  }
+
+  if (error) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          backgroundColor: 'white'
+        }}>
+        <Typography
+          variant='h6'
+          color='error'>
+          An error has occurred: {error.message}
+        </Typography>
       </Box>
     )
   }
@@ -70,7 +92,7 @@ export default function Home() {
           eventType={eventType}
           setEventType={setEventType}
         />
-        <CardEventGroup eventos={filteredEventos.slice(0, 4)} />
+        <CardEventGroup eventos={filteredEventos?.slice(0, 4)} />
         <SectionHeader
           title='Comunidades em Destaque'
           subtitle='Conheça as comunidades dev mais ativas da plataforma'

@@ -1,14 +1,13 @@
-import axios from 'axios'
-
 export const getEventos = async () => {
   try {
-    const [comunidadesRes, eventosRes] = await Promise.all([
-      axios.get('http://localhost:4000/comunidades'),
-      axios.get('http://localhost:4000/eventos')
-    ])
+    const [comunidadesRes, eventosRes] = await Promise.all([fetch('http://localhost:4000/comunidades'), fetch('http://localhost:4000/eventos')])
 
-    const comunidadesData = comunidadesRes.data
-    const eventosData = eventosRes.data
+    if (!comunidadesRes.ok || !eventosRes.ok) {
+      throw new Error('Network response was not ok')
+    }
+
+    const comunidadesData = await comunidadesRes.json()
+    const eventosData = await eventosRes.json()
 
     const comunidadesMap = comunidadesData.reduce((acc, comunidade) => {
       acc[comunidade.id] = comunidade
