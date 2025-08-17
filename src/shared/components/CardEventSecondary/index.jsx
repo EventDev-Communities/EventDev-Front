@@ -1,22 +1,22 @@
+import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import CardMedia from '@mui/material/CardMedia'
 import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
 import Stack from '@mui/material/Stack'
-import Avatar from '@mui/material/Avatar'
-import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
 
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import LinkIcon from '@mui/icons-material/Link'
 import PlaceIcon from '@mui/icons-material/Place'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 
-import profile from '@/shared/assets/static/images/front-end-ce.jpg'
+import profile from '@/shared/assets/static/images/front-end-ce.png'
 
+import imagePHP from '@/shared/assets/static/images/MeetuPHP_com_Rapadura.png'
 import imagePython from '@/shared/assets/static/images/Python.png'
 import imageReact from '@/shared/assets/static/images/React_Conf_Nordeste.png'
-import imagePHP from '@/shared/assets/static/images/MeetuPHP_com_Rapadura.png'
 
 export function CardEventSecondaryGroup() {
   return (
@@ -84,9 +84,15 @@ export default function CardEventSecondary(props) {
       <Box sx={{ position: 'relative' }}>
         <CardMedia
           component='img'
-          height='250'
+          height='135'
           image={image}
           alt={title}
+          sx={{
+            objectFit: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'cover'
+          }}
         />
         <CardContent>
           <Typography

@@ -1,18 +1,18 @@
+import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
-import Link from '@mui/material/Link'
-import Avatar from '@mui/material/Avatar'
-import CardMedia from '@mui/material/CardMedia'
-import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
 import CardActionArea from '@mui/material/CardActionArea'
+import CardContent from '@mui/material/CardContent'
+import CardMedia from '@mui/material/CardMedia'
+import Link from '@mui/material/Link'
+import Typography from '@mui/material/Typography'
 
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import LinkIcon from '@mui/icons-material/Link'
 import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 
-import eventReact from '@/shared/assets/static/images/event-react.jpg'
-import logoFrontendCeara from '@/shared/assets/static/images/frontend-ce-logo.jpg'
+import eventReact from '@/shared/assets/static/images/event-react.png'
+import logoFrontendCeara from '@/shared/assets/static/images/frontend-ce-logo.png'
 
 export default function CardEventHorizontal() {
   return (
@@ -32,8 +32,11 @@ export default function CardEventHorizontal() {
         alt='Evento React'
         sx={{
           width: { xs: '100%', sm: 200 },
-          height: { xs: 'auto', sm: 180 },
+          height: '135px',
           objectFit: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
           borderBottomLeftRadius: { xs: 0, sm: 8 }
         }}
       />

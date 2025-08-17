@@ -1,15 +1,15 @@
+import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
-import Link from '@mui/material/Link'
-import Avatar from '@mui/material/Avatar'
-import CardMedia from '@mui/material/CardMedia'
-import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
 import CardActionArea from '@mui/material/CardActionArea'
+import CardContent from '@mui/material/CardContent'
+import CardMedia from '@mui/material/CardMedia'
+import Link from '@mui/material/Link'
+import Typography from '@mui/material/Typography'
 
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import LinkIcon from '@mui/icons-material/Link'
 import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 
 export default function CardEvent({ evento }) {
   if (!evento || !evento.comunidade) return null
@@ -40,12 +40,19 @@ export default function CardEvent({ evento }) {
             {evento.comunidade.nome}
           </Typography>
         </Box>
-        <Box sx={{ position: 'relative', aspectRatio: '1 / 1', width: '100%' }}>
+        <Box sx={{ position: 'relative', width: '294.75px', height: '320px' }}>
           <CardMedia
             component='img'
             image={evento.capa_url}
             alt='Evento React'
-            sx={{ objectFit: 'cover', objectPosition: 'top', width: '100%', height: '100%' }}
+            sx={{
+              width: '294.75px',
+              height: '320px',
+              objectFit: 'cover',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
           />
           <Box
             sx={{

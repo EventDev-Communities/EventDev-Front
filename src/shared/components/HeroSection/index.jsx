@@ -1,8 +1,8 @@
+import eventImg from '@/shared/assets/static/images/event-img.png'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
-import eventImg from '@/shared/assets/static/images/event-img.jpg'
 
 export default function HeroSection() {
   return (
@@ -12,8 +12,7 @@ export default function HeroSection() {
         paddingTop: '4rem',
         paddingBottom: '4rem',
         minHeight: '10vh'
-      }}
-    >
+      }}>
       <Container maxWidth='xl'>
         <Box
           sx={{
@@ -22,8 +21,7 @@ export default function HeroSection() {
             justifyContent: 'space-between',
             alignItems: 'center',
             flexDirection: { xs: 'column', md: 'row' }
-          }}
-        >
+          }}>
           <Box sx={{ flex: 1, maxWidth: '600px' }}>
             <Typography
               variant='h1'
@@ -34,8 +32,7 @@ export default function HeroSection() {
                 lineHeight: '3.5rem',
                 marginBottom: '1rem',
                 textAlign: { xs: 'left', md: 'left' }
-              }}
-            >
+              }}>
               Conecte-se <br />
               com as melhores comunidades dev
             </Typography>
@@ -47,8 +44,7 @@ export default function HeroSection() {
                 fontWeight: '300',
                 marginBottom: '2.35rem',
                 maxWidth: '500px'
-              }}
-            >
+              }}>
               Descubra, participe e crie eventos incríveis com comunidades de desenvolvedores do Nordeste.
             </Typography>
 
@@ -60,8 +56,7 @@ export default function HeroSection() {
                 width: { xs: '100%', md: 'auto' },
                 paddingBottom: { xs: '5rem', md: '1rem' },
                 justifyContent: { xs: 'center', md: 'start' }
-              }}
-            >
+              }}>
               <Button
                 href='/eventos'
                 variant='contained'
@@ -70,8 +65,7 @@ export default function HeroSection() {
                 sx={{
                   height: { xs: 60, md: 'auto' },
                   width: { xs: '100%', md: 'auto' }
-                }}
-              >
+                }}>
                 Explorar Eventos
               </Button>
 
@@ -84,8 +78,7 @@ export default function HeroSection() {
                   fontWeight: '700',
                   height: { xs: 60, md: 'auto' },
                   width: { xs: '100%', md: 'auto' }
-                }}
-              >
+                }}>
                 Criar Eventos
               </Button>
             </Box>
@@ -96,8 +89,7 @@ export default function HeroSection() {
               flex: 1,
               display: { xs: 'none', md: 'flex' },
               justifyContent: { xs: 'center', md: 'end' }
-            }}
-          >
+            }}>
             <Box
               component='img'
               src={eventImg}

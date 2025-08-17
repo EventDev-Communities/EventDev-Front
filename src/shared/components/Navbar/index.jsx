@@ -1,22 +1,22 @@
 import { useState } from 'react'
 
-import Box from '@mui/material/Box'
-import Link from '@mui/material/Link'
-import Menu from '@mui/material/Menu'
-import Button from '@mui/material/Button'
 import AppBar from '@mui/material/AppBar'
 import Avatar from '@mui/material/Avatar'
-import Tooltip from '@mui/material/Tooltip'
-import Toolbar from '@mui/material/Toolbar'
-import MenuItem from '@mui/material/MenuItem'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import IconButton from '@mui/material/IconButton'
+import Link from '@mui/material/Link'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import Toolbar from '@mui/material/Toolbar'
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 
 import MenuIcon from '@mui/icons-material/Menu'
 
-import ThemeToggle from '@/shared/components/ThemeToggle'
 import logoImage from '@/shared/assets/static/images/logo.png'
+import ThemeToggle from '@/shared/components/ThemeToggle'
 
 const pages = ['Eventos', 'Comunidades']
 const settings = ['Logout']
@@ -225,7 +225,7 @@ export default function Navbar() {
                   }}>
                   <Avatar
                     alt='Sharp'
-                    src='/static/images/avatar/2.jpg'
+                    src='/static/images/avatar/2.png'
                   />
                 </IconButton>
               </Tooltip>
