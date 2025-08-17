@@ -40,13 +40,13 @@ export default function CardEvent({ evento }) {
             {evento.comunidade.nome}
           </Typography>
         </Box>
-        <Box sx={{ position: 'relative', width: '294.75px', height: '320px' }}>
+        <Box sx={{ position: 'relative', width: '294.75px', height: '320px', margin: 'auto' }}>
           <CardMedia
             component='img'
             image={evento.capa_url}
             alt='Evento React'
             sx={{
-              width: '294.75px',
+              width: '100%',
               height: '320px',
               objectFit: 'cover',
               backgroundSize: 'cover',
