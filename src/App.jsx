@@ -11,6 +11,7 @@ import Navbar from '@/shared/components/Navbar'
 import Footer from '@/shared/components/Footer'
 import CommunityProfile from './pages/CommunityProfile'
 import PageNotFound from './pages/PageNotFound'
+import CommunityEdit from './pages/CommunityEdit'
 
 export default function App() {
   return (
@@ -36,6 +37,14 @@ export default function App() {
         <Route
           path='/cadastro-comunidade'
           element={<CommunityRegister />}
+        />
+        <Route
+          path='/meu-perfil/:communitySlug'
+          element={<CommunityProfile isOwner={true} />}
+        />
+        <Route
+          path='/editar-comunidade/:communityId'
+          element={<CommunityEdit />}
         />
         <Route
           path='/criacao-de-eventos'

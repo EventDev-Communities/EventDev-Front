@@ -21,9 +21,7 @@ export default function EventTypeSelector({ value, onChange }) {
           exclusive
           onChange={(e, val) => val && onChange(val)}
           sx={{
-            overflow: 'hidden !important',
-            border: 'none !important',
-            boxShadow: 'none !important'
+            gap: 1
           }}>
           {['todos', 'online', 'presencial'].map((type) => (
             <ToggleButton
@@ -31,32 +29,23 @@ export default function EventTypeSelector({ value, onChange }) {
               value={type}
               disableRipple
               sx={{
-                'textTransform': 'none',
-                'px': 3,
-                'py': 1,
-                'border': 'none !important',
-                'borderRadius': '4px !important',
-                'fontWeight': value === type ? 700 : 500,
-                'backgroundColor': value === type ? '#fff' : 'transparent',
-                'color': value === type ? '#111827' : '#6b7280',
-                '&.Mui-selected': {
-                  backgroundColor: '#fff',
-                  color: '#111827',
-                  boxShadow: 'none',
-                  border: 'none !important',
-                  minWidth: '0 !important',
-                  borderRadius: '10px !important'
+                '&': {
+                  py: 1,
+                  px: 3,
+                  fontSize: '12px',
+                  border: 'none',
+                  textWrap: 'nowrap',
+                  borderRadius: '8px',
+                  textTransform: 'none',
+                  fontWeight: value === type ? 700 : 500,
+                  color: value === type ? '#111827' : '#6b7280',
+                  backgroundColor: value === type ? '#fff' : 'transparent'
                 },
                 '&:hover': {
-                  backgroundColor: value === type ? '#fff' : '#e2e8f0'
+                  backgroundColor: value === type ? '#fff' : '#e5e7eb'
                 },
-                '&:focus': {
-                  outline: 'none !important',
-                  boxShadow: 'none !important'
-                },
-                '&.Mui-focusVisible': {
-                  outline: 'none !important',
-                  boxShadow: 'none !important'
+                '&.Mui-selected, &.Mui-selected:hover': {
+                  backgroundColor: '#fff'
                 }
               }}>
               {type === 'todos' && 'Todos'}

@@ -10,6 +10,19 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 export default function UploadImg({ onImageUpload }) {
   const [logoUrl, setLogoUrl] = useState('')
   const [fileName, setFileName] = useState(null)
+  const [urlError, setUrlError] = useState('')
+
+  const validateUrl = (url) => {
+    if (!url) return ''
+
+    const urlPattern = new RegExp('^https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$')
+
+    if (!urlPattern.test(url)) {
+      return 'URL inválida. Use formato: https://exemplo.com'
+    }
+
+    return ''
+  }
 
   const handleFileChange = (event) => {
     const inputId = event.target.getAttribute('id')
@@ -19,6 +32,7 @@ export default function UploadImg({ onImageUpload }) {
       if (file) {
         setFileName(file.name)
         setLogoUrl('')
+        setUrlError('')
 
         onImageUpload({
           file: file,
@@ -32,14 +46,19 @@ export default function UploadImg({ onImageUpload }) {
 
     if (inputId === 'urlUpload') {
       const url = event.target.value
-      if (url) {
-        setFileName(null)
-        setLogoUrl(url)
+      setLogoUrl(url)
 
+      const error = validateUrl(url)
+      setUrlError(error)
+
+      if (url && !error) {
+        setFileName(null)
         onImageUpload({
           url: url,
           name: url
         })
+      } else if (!url) {
+        onImageUpload(null)
       }
     }
   }
@@ -100,6 +119,8 @@ export default function UploadImg({ onImageUpload }) {
         placeholder='https://exemplo.com/logo.png'
         value={logoUrl}
         onChange={handleFileChange}
+        error={!!urlError}
+        helperText={urlError}
       />
 
       <Typography

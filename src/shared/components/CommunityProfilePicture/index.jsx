@@ -1,101 +1,104 @@
+import Box from '@mui/material/Box'
 import Avatar from '@mui/material/Avatar'
 import Typography from '@mui/material/Typography'
-import Stack from '@mui/material/Stack'
-import Box from '@mui/material/Box'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import InstagramIcon from '@mui/icons-material/Instagram'
-import LanguageIcon from '@mui/icons-material/Language'
-import Link from '@mui/material/Link'
-import IconButton from '@mui/material/IconButton'
+import Container from '@mui/material/Container'
 
 export default function CommunityProfilePicture({ comunidade }) {
   return (
-    <Stack
-      direction='row'
-      spacing={2}
-      alignItems='center'
-      sx={{
-        py: 2,
-        display: 'flex',
-        flexDirection: { xs: 'column', sm: 'row' },
-        alignItems: { xs: 'center', sm: 'flex-start' }
-      }}>
+    <Container maxWidth='lg'>
       <Box
         sx={{
-          width: 160,
-          height: 160,
-          borderRadius: '50%',
-          overflow: 'hidden',
-          border: '3px solid #eee'
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: { xs: 'center', md: 'flex-start' },
+          gap: { xs: 2, sm: 3, md: 4 },
+          py: { xs: 2, sm: 3, md: 4 },
+          px: { xs: 1, sm: 2 }
         }}>
-        <img
-          src={comunidade.logo_url}
-          alt={comunidade.nome}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover'
-          }}
-        />
+        <Avatar
+          src={comunidade?.logo_url}
+          alt={`Logo da ${comunidade?.nome}`}
+          sx={{
+            width: {
+              xs: 120,
+              sm: 150,
+              md: 180,
+              lg: 200
+            },
+            height: {
+              xs: 120,
+              sm: 150,
+              md: 180,
+              lg: 200
+            },
+            flexShrink: 0,
+            border: '3px solid',
+            borderColor: 'divider',
+            boxShadow: 2,
+            bgcolor: comunidade?.logo_url ? 'transparent' : 'primary.main',
+            color: comunidade?.logo_url ? 'inherit' : 'primary.contrastText',
+            fontSize: {
+              xs: '3rem',
+              sm: '3.5rem',
+              md: '4rem',
+              lg: '4.5rem'
+            },
+            fontWeight: 600
+          }}>
+          {comunidade?.nome?.charAt(0)?.toUpperCase()}
+        </Avatar>
+
+        <Box
+          sx={{
+            flex: 1,
+            textAlign: { xs: 'center', md: 'left' },
+            minWidth: 0,
+            maxWidth: { xs: '100%', md: 'calc(100% - 220px)' }
+          }}>
+          <Typography
+            variant='h3'
+            component='h1'
+            sx={{
+              fontSize: {
+                xs: '1.75rem',
+                sm: '2.125rem',
+                md: '2.5rem',
+                lg: '3rem'
+              },
+              fontWeight: 700,
+              mb: 1,
+              wordBreak: 'break-word',
+              lineHeight: 1.2
+            }}>
+            {comunidade?.nome}
+          </Typography>
+
+          {comunidade?.descricao && (
+            <Typography
+              variant='body1'
+              color='text.secondary'
+              sx={{
+                fontSize: { xs: '0.875rem', sm: '1rem' },
+                lineHeight: 1.6,
+                maxWidth: { xs: '100%', md: '600px' },
+                wordBreak: 'break-word'
+              }}>
+              {comunidade.descricao}
+            </Typography>
+          )}
+
+          {(comunidade?.link_website || comunidade?.link_instagram || comunidade?.link_linkedin || comunidade?.link_github) && (
+            <Box
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 1,
+                mt: 2,
+                justifyContent: { xs: 'center', md: 'flex-start' }
+              }}></Box>
+          )}
+        </Box>
       </Box>
-
-      <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 1 }}>
-        <Typography
-          variant='h1'
-          sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-          {comunidade.nome}
-        </Typography>
-
-        <Typography
-          variant='body2'
-          color='text.secondary'
-          sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-          {comunidade.descricao}
-        </Typography>
-
-        <Stack
-          direction='row'
-          spacing={1}
-          mt={1}
-          sx={{ justifyContent: { xs: 'center', sm: 'flex-start' } }}>
-          {comunidade.github_url && (
-            <Link
-              href={comunidade.github_url}
-              target='_blank'
-              rel='noopener'>
-              <IconButton
-                aria-label='GitHub'
-                size='small'>
-                <GitHubIcon fontSize='small' />
-              </IconButton>
-            </Link>
-          )}
-          {comunidade.instagram_url && (
-            <Link
-              href={comunidade.instagram_url}
-              target='_blank'
-              rel='noopener'>
-              <IconButton
-                aria-label='Instagram'
-                size='small'>
-                <InstagramIcon fontSize='small' />
-              </IconButton>
-            </Link>
-          )}
-          {comunidade.site_url && (
-            <Link
-              href={comunidade.site_url}
-              target='_blank'
-              rel='noopener'>
-              <IconButton
-                aria-label='Website'
-                size='small'>
-                <LanguageIcon fontSize='small' />
-              </IconButton>
-            </Link>
-          )}
-        </Stack>
-      </Box>
-    </Stack>
+    </Container>
   )
 }

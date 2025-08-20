@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
@@ -12,15 +12,18 @@ import Typography from '@mui/material/Typography'
 
 import LogoPreviewCard from '@/shared/components/LogoPreviewCard'
 import UploadImg from '@/shared/components/UploadImg'
-import { createComunidade } from '@/api/comunidades'
+import { getComunidadeById, updateComunidade } from '@/api/comunidades'
 
-export default function CommunityRegister() {
+export default function CommunityEdit() {
   const [uploadedImage, setUploadedImage] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [submitError, setSubmitError] = useState('')
   const [submitSuccess, setSubmitSuccess] = useState(false)
+  const [comunidade, setComunidade] = useState(null)
 
   const navigate = useNavigate()
+  const { communityId } = useParams()
 
   const {
     register,
@@ -32,7 +35,7 @@ export default function CommunityRegister() {
   const emailValidation = {
     required: 'E-mail é obrigatório',
     pattern: {
-      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+      value: new RegExp('^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$', 'i'),
       message: 'E-mail inválido'
     }
   }
@@ -44,6 +47,50 @@ export default function CommunityRegister() {
     }
   }
 
+  useEffect(() => {
+    const fetchComunidade = async () => {
+      try {
+        setIsLoading(true)
+        setSubmitError('')
+
+        if (!communityId) {
+          setSubmitError('ID da comunidade não fornecido')
+          return
+        }
+
+        const comunidadeData = await getComunidadeById(communityId)
+
+        if (!comunidadeData) {
+          setSubmitError('Comunidade não encontrada')
+          return
+        }
+
+        setComunidade(comunidadeData)
+
+        reset({
+          nomeComunidade: comunidadeData.nome || '',
+          email: comunidadeData.email || '',
+          descricao: comunidadeData.descricao || '',
+          telefone: comunidadeData.telefone || '',
+          website: comunidadeData.link_website || '',
+          instagram: comunidadeData.link_instagram || '',
+          linkedin: comunidadeData.link_linkedin || '',
+          github: comunidadeData.link_github || ''
+        })
+
+        if (comunidadeData.logo_url) {
+          setUploadedImage(comunidadeData.logo_url)
+        }
+      } catch (fetchError) {
+        setSubmitError(`Erro ao carregar dados da comunidade: ${fetchError.message}`)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchComunidade()
+  }, [communityId, reset])
+
   const onSubmit = async (data) => {
     setIsSubmitting(true)
     setSubmitError('')
@@ -53,7 +100,6 @@ export default function CommunityRegister() {
       const dadosComunidade = {
         nome: data.nomeComunidade,
         email: data.email,
-        senha: data.senha,
         descricao: data.descricao || '',
         telefone: data.telefone || '',
         link_website: data.website || '',
@@ -63,17 +109,15 @@ export default function CommunityRegister() {
         logo_url: uploadedImage || ''
       }
 
-      const comunidadeCriada = await createComunidade(dadosComunidade)
+      await updateComunidade(communityId, dadosComunidade)
 
       setSubmitSuccess(true)
-      reset()
-      setUploadedImage(null)
 
       setTimeout(() => {
-        navigate(`/meu-perfil/${comunidadeCriada.slug}`)
+        navigate(`/meu-perfil/${comunidade.slug}`)
       }, 2000)
-    } catch {
-      setSubmitError('Erro ao cadastrar comunidade. Tente novamente.')
+    } catch (updateError) {
+      setSubmitError(`Erro ao atualizar comunidade: ${updateError.message}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -83,20 +127,47 @@ export default function CommunityRegister() {
     setUploadedImage(imageData)
   }
 
+  if (isLoading) {
+    return (
+      <Container maxWidth='xl'>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '50vh',
+            paddingTop: '4.5rem'
+          }}>
+          <CircularProgress />
+        </Box>
+      </Container>
+    )
+  }
+
+  if (submitError && !comunidade) {
+    return (
+      <Container maxWidth='xl'>
+        <Box sx={{ paddingTop: '4.5rem', marginTop: '2rem' }}>
+          <Alert severity='error'>{submitError}</Alert>
+        </Box>
+      </Container>
+    )
+  }
+
   return (
     <Container maxWidth='xl'>
       <Box sx={{ paddingTop: '4.5rem', marginTop: '2rem' }}>
         <Typography
           variant='h2'
           component='h2'>
-          Cadastro de Comunidade
+          Editar Comunidade
         </Typography>
 
         <Typography
           variant='body1'
           component='p'
           sx={{ color: '#64748B', marginTop: '1rem' }}>
-          Cadastre sua comunidade para poder compartilhar seus eventos com o público
+          Atualize as informações da sua comunidade
         </Typography>
       </Box>
 
@@ -112,7 +183,7 @@ export default function CommunityRegister() {
         <Alert
           severity='success'
           sx={{ mt: 2 }}>
-          Comunidade cadastrada com sucesso! Redirecionando...
+          Comunidade atualizada com sucesso! Redirecionando...
         </Alert>
       )}
 
@@ -183,32 +254,27 @@ export default function CommunityRegister() {
             <Box sx={{ flex: 1, minWidth: 200 }}>
               <Typography
                 component='label'
-                htmlFor='senha'
+                htmlFor='telefone'
                 variant='subtitle1'
                 fontWeight='bold'
                 sx={{ marginBottom: '0.5rem', display: 'block' }}>
-                Senha
+                Telefone
               </Typography>
 
               <TextField
-                required
-                id='senha'
-                type='password'
-                placeholder='********'
-                autoComplete='current-password'
-                {...register('senha', {
-                  required: 'Senha é obrigatória',
-                  minLength: { value: 6, message: 'Mínimo de 6 caracteres' }
-                })}
-                error={!!errors.senha}
-                helperText={errors.senha?.message}
+                id='telefone'
+                type='tel'
+                placeholder='(85) 99999-9999'
+                {...register('telefone')}
+                error={!!errors.telefone}
+                helperText={errors.telefone?.message}
                 sx={{ width: '100%' }}
               />
 
               <Typography
                 variant='caption'
                 sx={{ marginTop: '0.5rem', color: 'text.secondary' }}>
-                Mínimo de 6 caracteres
+                Telefone para contato
               </Typography>
             </Box>
           </Box>
@@ -361,14 +427,22 @@ export default function CommunityRegister() {
             </Box>
           </Box>
 
-          <Button
-            sx={{ marginTop: '1rem' }}
-            type='submit'
-            variant='contained'
-            disabled={isSubmitting}
-            startIcon={isSubmitting ? <CircularProgress size={20} /> : null}>
-            {isSubmitting ? 'Cadastrando...' : 'Cadastrar Comunidade'}
-          </Button>
+          <Box sx={{ display: 'flex', gap: '1rem' }}>
+            <Button
+              variant='outlined'
+              onClick={() => navigate(-1)}
+              disabled={isSubmitting}>
+              Cancelar
+            </Button>
+
+            <Button
+              type='submit'
+              variant='contained'
+              disabled={isSubmitting}
+              startIcon={isSubmitting ? <CircularProgress size={20} /> : null}>
+              {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
+            </Button>
+          </Box>
         </Box>
 
         <LogoPreviewCard imageData={uploadedImage} />

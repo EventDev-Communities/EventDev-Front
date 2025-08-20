@@ -4,10 +4,24 @@ import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 import CardActionArea from '@mui/material/CardActionArea'
 import Link from '@mui/material/Link'
+import Box from '@mui/material/Box'
 import { useNavigate } from 'react-router-dom'
 
 export default function FeaturedCard({ comunidade }) {
   const navigate = useNavigate()
+
+  const getInitials = (name) => {
+    if (!name) return '?'
+    return name
+      .split(' ')
+      .filter((word) => word.length > 0)
+      .map((word) => word.charAt(0))
+      .join('')
+      .substring(0, 2)
+      .toUpperCase()
+  }
+
+  const hasValidLogo = comunidade.logo_url && comunidade.logo_url.trim() !== '' && typeof comunidade.logo_url === 'string'
 
   const handleLinkClick = (e) => {
     e.preventDefault()
@@ -34,19 +48,45 @@ export default function FeaturedCard({ comunidade }) {
           flexDirection: 'column',
           height: '100%'
         }}>
-        <CardMedia
-          component='img'
-          image={comunidade.logo_url}
-          alt={`Logo da comunidade ${comunidade.nome}`}
-          sx={{
-            height: '100px',
-            width: '100px',
-            borderRadius: '50%',
-            display: 'flex',
-            justifySelf: 'center',
-            margin: '0 auto'
-          }}
-        />
+        {hasValidLogo ? (
+          <CardMedia
+            component='img'
+            image={comunidade.logo_url}
+            alt={`Logo da comunidade ${comunidade.nome}`}
+            sx={{
+              height: '100px',
+              width: '100px',
+              borderRadius: '50%',
+              display: 'flex',
+              justifySelf: 'center',
+              margin: '0 auto',
+              objectFit: 'cover'
+            }}
+          />
+        ) : (
+          <Box
+            sx={{
+              height: '100px',
+              width: '100px',
+              borderRadius: '50%',
+              backgroundColor: 'primary.main',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto'
+            }}>
+            <Typography
+              variant='h4'
+              sx={{
+                color: 'white',
+                fontWeight: 'bold',
+                fontSize: '2rem',
+                lineHeight: 1
+              }}>
+              {getInitials(comunidade.nome)}
+            </Typography>
+          </Box>
+        )}
 
         <CardContent sx={{ flexGrow: 1 }}>
           <Typography

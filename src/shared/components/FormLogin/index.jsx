@@ -79,7 +79,7 @@ export default function FormLogin() {
           color='text.secondary'
           display='block'
           sx={{ color: '#FC692D', textDecoration: 'none', fontWeight: 'bold' }}>
-          Cadastre-se aqui
+          Cadastre sua comunidade
         </Link>
       </Typography>
       <Typography
