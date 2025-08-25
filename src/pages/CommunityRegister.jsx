@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
@@ -13,12 +15,28 @@ import Typography from '@mui/material/Typography'
 import LogoPreviewCard from '@/shared/components/LogoPreviewCard'
 import UploadImg from '@/shared/components/UploadImg'
 import { createComunidade } from '@/api/comunidades'
+import Snackbar from '@mui/material/Snackbar'
+
+const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/
+
+const communitySchema = z.object({
+  nomeComunidade: z.string().min(1, 'Nome da comunidade é obrigatório'),
+  email: z.string().email('E-mail inválido'),
+  senha: z.string().min(6, 'Mínimo de 6 caracteres'),
+  descricao: z.string().optional(),
+  telefone: z.string().optional(),
+  website: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
+  instagram: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
+  linkedin: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
+  github: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal(''))
+})
 
 export default function CommunityRegister() {
   const [uploadedImage, setUploadedImage] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [submitSuccess, setSubmitSuccess] = useState(false)
+  const [showSuccessToast, setShowSuccessToast] = useState(false)
 
   const navigate = useNavigate()
 
@@ -27,22 +45,9 @@ export default function CommunityRegister() {
     handleSubmit,
     formState: { errors },
     reset
-  } = useForm()
-
-  const emailValidation = {
-    required: 'E-mail é obrigatório',
-    pattern: {
-      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-      message: 'E-mail inválido'
-    }
-  }
-
-  const urlValidation = {
-    pattern: {
-      value: new RegExp('^https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$'),
-      message: 'URL inválida. Use formato: https://exemplo.com'
-    }
-  }
+  } = useForm({
+    resolver: zodResolver(communitySchema)
+  })
 
   const onSubmit = async (data) => {
     setIsSubmitting(true)
@@ -66,6 +71,7 @@ export default function CommunityRegister() {
       const comunidadeCriada = await createComunidade(dadosComunidade)
 
       setSubmitSuccess(true)
+      setShowSuccessToast(true)
       reset()
       setUploadedImage(null)
 
@@ -101,19 +107,32 @@ export default function CommunityRegister() {
       </Box>
 
       {submitError && (
-        <Alert
-          severity='error'
-          sx={{ mt: 2 }}>
-          {submitError}
-        </Alert>
+        <Snackbar
+          open={showSuccessToast}
+          autoHideDuration={3000}
+          onClose={() => setShowSuccessToast(false)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+          <Alert
+            severity='error'
+            sx={{ mt: 2 }}>
+            {submitError}
+          </Alert>
+        </Snackbar>
       )}
 
       {submitSuccess && (
-        <Alert
-          severity='success'
-          sx={{ mt: 2 }}>
-          Comunidade cadastrada com sucesso! Redirecionando...
-        </Alert>
+        <Snackbar
+          open={showSuccessToast}
+          autoHideDuration={3000}
+          onClose={() => setShowSuccessToast(false)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+          <Alert
+            onClose={() => setShowSuccessToast(false)}
+            severity='success'
+            sx={{ width: '100%' }}>
+            Comunidade criada com sucesso!
+          </Alert>
+        </Snackbar>
       )}
 
       <Box
@@ -137,7 +156,7 @@ export default function CommunityRegister() {
               id='nomeComunidade'
               placeholder='ex: React Nordeste'
               type='text'
-              {...register('nomeComunidade', { required: 'Nome da comunidade é obrigatório' })}
+              {...register('nomeComunidade')}
               error={!!errors.nomeComunidade}
               helperText={errors.nomeComunidade?.message}
               sx={{ width: '100%' }}
@@ -167,7 +186,7 @@ export default function CommunityRegister() {
                 placeholder='ex: contato@comunidade.dev'
                 autoComplete='email'
                 type='email'
-                {...register('email', emailValidation)}
+                {...register('email')}
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 sx={{ width: '100%' }}
@@ -196,10 +215,7 @@ export default function CommunityRegister() {
                 type='password'
                 placeholder='********'
                 autoComplete='current-password'
-                {...register('senha', {
-                  required: 'Senha é obrigatória',
-                  minLength: { value: 6, message: 'Mínimo de 6 caracteres' }
-                })}
+                {...register('senha')}
                 error={!!errors.senha}
                 helperText={errors.senha?.message}
                 sx={{ width: '100%' }}
@@ -229,6 +245,8 @@ export default function CommunityRegister() {
               multiline
               minRows={5}
               {...register('descricao')}
+              error={!!errors.descricao}
+              helperText={errors.descricao?.message}
               sx={{ width: '100%' }}
             />
 
@@ -263,7 +281,7 @@ export default function CommunityRegister() {
                   id='instagram'
                   placeholder='https://instagram.com/sua-comunidade'
                   type='url'
-                  {...register('instagram', urlValidation)}
+                  {...register('instagram')}
                   error={!!errors.instagram}
                   helperText={errors.instagram?.message}
                   sx={{ width: '100%' }}
@@ -290,7 +308,7 @@ export default function CommunityRegister() {
                   id='linkedin'
                   placeholder='https://linkedin.com/in/sua-comunidade'
                   type='url'
-                  {...register('linkedin', urlValidation)}
+                  {...register('linkedin')}
                   error={!!errors.linkedin}
                   helperText={errors.linkedin?.message}
                   sx={{ width: '100%' }}
@@ -319,7 +337,7 @@ export default function CommunityRegister() {
                   id='website'
                   placeholder='https://seusite.com.br'
                   type='url'
-                  {...register('website', urlValidation)}
+                  {...register('website')}
                   error={!!errors.website}
                   helperText={errors.website?.message}
                   sx={{ width: '100%' }}
@@ -346,7 +364,7 @@ export default function CommunityRegister() {
                   id='github'
                   placeholder='https://github.com/sua-comunidade'
                   type='url'
-                  {...register('github', urlValidation)}
+                  {...register('github')}
                   error={!!errors.github}
                   helperText={errors.github?.message}
                   sx={{ width: '100%' }}

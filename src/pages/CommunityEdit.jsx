@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import Alert from '@mui/material/Alert'
@@ -9,17 +11,33 @@ import CircularProgress from '@mui/material/CircularProgress'
 import Container from '@mui/material/Container'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import Snackbar from '@mui/material/Snackbar'
 
 import LogoPreviewCard from '@/shared/components/LogoPreviewCard'
 import UploadImg from '@/shared/components/UploadImg'
 import { getComunidadeById, updateComunidade } from '@/api/comunidades'
+
+const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/
+
+const communitySchema = z.object({
+  nomeComunidade: z.string().min(1, 'Nome da comunidade é obrigatório'),
+  email: z.string().email('E-mail inválido'),
+  descricao: z.string().optional(),
+  telefone: z.string().optional(),
+  website: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
+  instagram: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
+  linkedin: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
+  github: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal(''))
+})
 
 export default function CommunityEdit() {
   const [uploadedImage, setUploadedImage] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [submitError, setSubmitError] = useState('')
-  const [submitSuccess, setSubmitSuccess] = useState(false)
+  const [, setSubmitSuccess] = useState(false)
+  const [showSuccessToast, setShowSuccessToast] = useState(false)
+  const [showErrorToast, setShowErrorToast] = useState(false)
   const [comunidade, setComunidade] = useState(null)
 
   const navigate = useNavigate()
@@ -30,22 +48,9 @@ export default function CommunityEdit() {
     handleSubmit,
     formState: { errors },
     reset
-  } = useForm()
-
-  const emailValidation = {
-    required: 'E-mail é obrigatório',
-    pattern: {
-      value: new RegExp('^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$', 'i'),
-      message: 'E-mail inválido'
-    }
-  }
-
-  const urlValidation = {
-    pattern: {
-      value: new RegExp('^https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$'),
-      message: 'URL inválida. Use formato: https://exemplo.com'
-    }
-  }
+  } = useForm({
+    resolver: zodResolver(communitySchema)
+  })
 
   useEffect(() => {
     const fetchComunidade = async () => {
@@ -112,12 +117,14 @@ export default function CommunityEdit() {
       await updateComunidade(communityId, dadosComunidade)
 
       setSubmitSuccess(true)
+      setShowSuccessToast(true)
 
       setTimeout(() => {
         navigate(`/meu-perfil/${comunidade.slug}`)
       }, 2000)
     } catch (updateError) {
       setSubmitError(`Erro ao atualizar comunidade: ${updateError.message}`)
+      setShowErrorToast(true)
     } finally {
       setIsSubmitting(false)
     }
@@ -171,21 +178,31 @@ export default function CommunityEdit() {
         </Typography>
       </Box>
 
-      {submitError && (
+      <Snackbar
+        open={showSuccessToast}
+        autoHideDuration={3000}
+        onClose={() => setShowSuccessToast(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert
-          severity='error'
-          sx={{ mt: 2 }}>
-          {submitError}
-        </Alert>
-      )}
-
-      {submitSuccess && (
-        <Alert
+          onClose={() => setShowSuccessToast(false)}
           severity='success'
-          sx={{ mt: 2 }}>
-          Comunidade atualizada com sucesso! Redirecionando...
+          sx={{ width: '100%' }}>
+          Comunidade editada com sucesso!
         </Alert>
-      )}
+      </Snackbar>
+
+      <Snackbar
+        open={showErrorToast}
+        autoHideDuration={4000}
+        onClose={() => setShowErrorToast(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert
+          onClose={() => setShowErrorToast(false)}
+          severity='error'
+          sx={{ width: '100%' }}>
+          {submitError || 'Erro ao editar comunidade.'}
+        </Alert>
+      </Snackbar>
 
       <Box
         component='form'
@@ -208,7 +225,7 @@ export default function CommunityEdit() {
               id='nomeComunidade'
               placeholder='ex: React Nordeste'
               type='text'
-              {...register('nomeComunidade', { required: 'Nome da comunidade é obrigatório' })}
+              {...register('nomeComunidade')}
               error={!!errors.nomeComunidade}
               helperText={errors.nomeComunidade?.message}
               sx={{ width: '100%' }}
@@ -238,7 +255,7 @@ export default function CommunityEdit() {
                 placeholder='ex: contato@comunidade.dev'
                 autoComplete='email'
                 type='email'
-                {...register('email', emailValidation)}
+                {...register('email')}
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 sx={{ width: '100%' }}
@@ -295,6 +312,8 @@ export default function CommunityEdit() {
               multiline
               minRows={5}
               {...register('descricao')}
+              error={!!errors.descricao}
+              helperText={errors.descricao?.message}
               sx={{ width: '100%' }}
             />
 
@@ -329,7 +348,7 @@ export default function CommunityEdit() {
                   id='instagram'
                   placeholder='https://instagram.com/sua-comunidade'
                   type='url'
-                  {...register('instagram', urlValidation)}
+                  {...register('instagram')}
                   error={!!errors.instagram}
                   helperText={errors.instagram?.message}
                   sx={{ width: '100%' }}
@@ -356,7 +375,7 @@ export default function CommunityEdit() {
                   id='linkedin'
                   placeholder='https://linkedin.com/in/sua-comunidade'
                   type='url'
-                  {...register('linkedin', urlValidation)}
+                  {...register('linkedin')}
                   error={!!errors.linkedin}
                   helperText={errors.linkedin?.message}
                   sx={{ width: '100%' }}
@@ -385,7 +404,7 @@ export default function CommunityEdit() {
                   id='website'
                   placeholder='https://seusite.com.br'
                   type='url'
-                  {...register('website', urlValidation)}
+                  {...register('website')}
                   error={!!errors.website}
                   helperText={errors.website?.message}
                   sx={{ width: '100%' }}
@@ -412,7 +431,7 @@ export default function CommunityEdit() {
                   id='github'
                   placeholder='https://github.com/sua-comunidade'
                   type='url'
-                  {...register('github', urlValidation)}
+                  {...register('github')}
                   error={!!errors.github}
                   helperText={errors.github?.message}
                   sx={{ width: '100%' }}

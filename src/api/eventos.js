@@ -23,3 +23,73 @@ export const getEventos = async () => {
     throw error
   }
 }
+
+export const createEvento = async (dadosEvento) => {
+  try {
+    const payload = {
+      ...dadosEvento,
+      criado_em: new Date().toISOString(),
+      atualizado_em: new Date().toISOString()
+    }
+
+    const response = await fetch('http://localhost:4000/eventos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+
+    if (!response.ok) {
+      throw new Error('Erro ao criar evento')
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Erro ao criar evento:', error)
+    throw error
+  }
+}
+
+export const updateEvento = async (id, dadosEvento) => {
+  try {
+    const payload = {
+      ...dadosEvento,
+      atualizado_em: new Date().toISOString()
+    }
+
+    const response = await fetch(`http://localhost:4000/eventos/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+
+    if (!response.ok) {
+      throw new Error('Erro ao atualizar evento')
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error('Erro ao atualizar evento:', error)
+    throw error
+  }
+}
+
+export const deleteEvento = async (id) => {
+  try {
+    const response = await fetch(`http://localhost:4000/eventos/${id}`, {
+      method: 'DELETE'
+    })
+
+    if (!response.ok) {
+      throw new Error('Erro ao excluir evento')
+    }
+
+    return true
+  } catch (error) {
+    console.error('Erro ao excluir evento:', error)
+    throw error
+  }
+}

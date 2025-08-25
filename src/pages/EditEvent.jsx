@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -18,7 +18,7 @@ import Alert from '@mui/material/Alert'
 
 import TipCard from '@/shared/components/TipCard'
 import BannerImg from '@/shared/components/UploadBanner'
-import { createEvento } from '@/api/eventos'
+import { getEventos, updateEvento } from '@/api/eventos'
 
 const today = new Date().toISOString().split('T')[0]
 
@@ -38,12 +38,15 @@ const eventSchema = z
     path: ['horarioFinal']
   })
 
-export default function CreateEvent() {
-  const { comunidadeId } = useParams()
+export default function EditEvent() {
+  const { eventoId } = useParams()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [showSuccessToast, setShowSuccessToast] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const navigate = useNavigate()
+  const [bannerImage, setBannerImage] = useState('')
+  const [evento, setEvento] = useState(null)
 
   const {
     register,
@@ -54,11 +57,44 @@ export default function CreateEvent() {
     resolver: zodResolver(eventSchema)
   })
 
+  useEffect(() => {
+    const fetchEvento = async () => {
+      setIsLoading(true)
+      setSubmitError('')
+      try {
+        const eventos = await getEventos()
+        const eventoEncontrado = eventos.find((e) => String(e.id) === String(eventoId))
+        if (!eventoEncontrado) {
+          setSubmitError('Evento não encontrado')
+          setIsLoading(false)
+          return
+        }
+        setEvento(eventoEncontrado)
+        setBannerImage(eventoEncontrado.capa_url || '')
+        reset({
+          nomeEvento: eventoEncontrado.titulo || '',
+          descricaoEvento: eventoEncontrado.descricao || '',
+          data: eventoEncontrado.data_Hora_inicial?.split('T')[0] || '',
+          horarioInicial: eventoEncontrado.data_Hora_inicial?.split('T')[1] || '',
+          horarioFinal: eventoEncontrado.data_Hora_final?.split('T')[1] || '',
+          modalidade: eventoEncontrado.modalidade || '',
+          endereco: eventoEncontrado.endereco || '',
+          cidade: eventoEncontrado.cidade || ''
+        })
+      } catch (err) {
+        setSubmitError('Erro ao carregar evento', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchEvento()
+  }, [eventoId, reset])
+
   const onSubmit = async (data) => {
     setIsSubmitting(true)
     setSubmitError('')
     try {
-      const novoEvento = {
+      const eventoAtualizado = {
         titulo: data.nomeEvento,
         descricao: data.descricaoEvento,
         data_Hora_inicial: `${data.data}T${data.horarioInicial}`,
@@ -66,21 +102,34 @@ export default function CreateEvent() {
         modalidade: data.modalidade,
         endereco: data.endereco || '',
         cidade: data.cidade || '',
-        capa_url: '',
-        id_comunidade: comunidadeId
+        capa_url: bannerImage || '',
+        id_comunidade: evento?.id_comunidade
       }
 
-      await createEvento(novoEvento)
+      await updateEvento(eventoId, eventoAtualizado)
       setShowSuccessToast(true)
-      reset()
       setTimeout(() => {
-        navigate('/eventos')
+        navigate(`/meu-perfil/${evento?.comunidade?.slug}`)
       }, 2000)
     } catch (err) {
-      setSubmitError('Erro ao criar evento. Tente novamente.', err)
+      setSubmitError('Erro ao editar evento. Tente novamente.', err)
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleBannerUpload = (img) => {
+    setBannerImage(img)
+  }
+
+  if (isLoading) {
+    return (
+      <Container maxWidth='xl'>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+          <Typography variant='h6'>Carregando evento...</Typography>
+        </Box>
+      </Container>
+    )
   }
 
   return (
@@ -89,13 +138,13 @@ export default function CreateEvent() {
         <Typography
           variant='h2'
           component='h2'>
-          Criar novo evento
+          Editar evento
         </Typography>
         <Typography
           variant='body1'
           component='p'
           sx={{ color: '#64748B', mt: '1rem' }}>
-          Compartilhe conhecimento e conecte-se com a comunidade criando seu próprio evento.
+          Atualize as informações do seu evento
         </Typography>
       </Box>
 
@@ -108,7 +157,7 @@ export default function CreateEvent() {
           onClose={() => setShowSuccessToast(false)}
           severity='success'
           sx={{ width: '100%' }}>
-          Evento criado com sucesso!
+          Evento editado com sucesso!
         </Alert>
       </Snackbar>
 
@@ -181,7 +230,10 @@ export default function CreateEvent() {
             </Typography>
           </Box>
 
-          <BannerImg />
+          <BannerImg
+            imageData={bannerImage}
+            onImageUpload={handleBannerUpload}
+          />
 
           <Box sx={{ paddingTop: '2rem' }}>
             <Box sx={{ display: 'flex', gap: '2rem', mb: '2rem', flexWrap: 'wrap', mt: '2rem' }}>
@@ -345,7 +397,7 @@ export default function CreateEvent() {
             type='submit'
             variant='contained'
             disabled={isSubmitting}>
-            {isSubmitting ? 'Criando...' : 'Criar Evento'}
+            {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
           </Button>
         </Box>
 

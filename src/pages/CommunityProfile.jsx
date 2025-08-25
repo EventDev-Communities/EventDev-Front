@@ -20,7 +20,7 @@ import ToogleCommunityProfile from '@/shared/components/ToggleCommunityProfile'
 import DeleteCommunityDialog from '@/shared/components/DeleteCommunityDialog'
 
 import { getComunidadeBySlug, deleteComunidade } from '@/api/comunidades'
-import { getEventos } from '@/api/eventos'
+import { deleteEvento, getEventos } from '@/api/eventos'
 
 export default function CommunityProfile({ isOwner = false }) {
   const { communitySlug } = useParams()
@@ -55,12 +55,12 @@ export default function CommunityProfile({ isOwner = false }) {
 
   const handleEditCommunity = () => {
     if (comunidade?.id) {
-      navigate(`/editar-comunidade/${comunidade.id}`)
+      navigate(`/comunidade/editar-perfil/${comunidade.id}`)
     }
   }
 
   const handleCreateEvent = () => {
-    navigate('/criacao-de-eventos')
+    navigate(`/criacao-de-eventos/${comunidade.id}`)
   }
 
   const handleDeleteCommunity = async () => {
@@ -110,6 +110,25 @@ export default function CommunityProfile({ isOwner = false }) {
     )
   }
 
+  const handleDeleteEvento = async (eventoId) => {
+    try {
+      await deleteEvento(eventoId)
+      setEventosDaComunidade((prev) => prev.filter((evento) => evento.id !== eventoId))
+      setToast({
+        open: true,
+        message: 'Evento excluído com sucesso!',
+        severity: 'success'
+      })
+    } catch (error) {
+      setToast({
+        open: true,
+        message: 'Erro ao excluir evento. Tente novamente.',
+        error,
+        severity: 'error'
+      })
+    }
+  }
+
   if (!comunidade) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -120,8 +139,9 @@ export default function CommunityProfile({ isOwner = false }) {
 
   const filteredEventos = eventosDaComunidade.filter((evento) => {
     if (eventType === 'todos' || eventType === 'eventos') return true
-    if (eventType === 'online') return evento.online === true
-    if (eventType === 'presencial') return evento.online === false
+    if (eventType === 'online') return evento.modalidade === 'online'
+    if (eventType === 'presencial') return evento.modalidade === 'presencial'
+    if (eventType === 'híbrido') return evento.modalidade === 'híbrido'
     return true
   })
 
@@ -186,12 +206,30 @@ export default function CommunityProfile({ isOwner = false }) {
         {eventType === 'sobre' ? (
           <AboutCommunity comunidade={comunidade} />
         ) : filteredEventos.length > 0 ? (
-          filteredEventos.map((evento) => (
-            <CardEvent
-              key={evento.id}
-              evento={evento}
-            />
-          ))
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                sm: 'repeat(2, minmax(260px, 1fr))',
+                md: 'repeat(2, minmax(300px, 1fr))',
+                lg: 'repeat(4, minmax(280px, 1fr))'
+              },
+              gap: '1.5rem',
+              marginBottom: '2rem',
+              justifyItems: 'center'
+            }}>
+            {filteredEventos.map((evento, idx) => (
+              <CardEvent
+                key={evento.id || idx}
+                evento={evento}
+                isSingle={filteredEventos.length === 1}
+                isOwner={isOwner}
+                onEdit={() => navigate(`/editar-evento/${evento.id}`)}
+                onDelete={() => handleDeleteEvento(evento.id)}
+              />
+            ))}
+          </Box>
         ) : (
           <Typography color='text.secondary'>Não existe nenhum evento agendado para essa comunidade.</Typography>
         )}

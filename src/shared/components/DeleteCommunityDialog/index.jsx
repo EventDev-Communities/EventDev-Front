@@ -45,10 +45,9 @@ export default function DeleteCommunityDialog({ open, onClose, onConfirm, commun
           borderRadius: 2
         }
       }}>
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1 }}>
-        <WarningIcon color='error' />
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 1, mb: 1 }}>
         <Typography
-          variant='h6'
+          variant='h5'
           component='span'>
           Excluir Comunidade
         </Typography>

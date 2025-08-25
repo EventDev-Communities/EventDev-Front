@@ -37,8 +37,9 @@ export default function Events() {
 
   const eventosFiltrados = eventos.filter((evento) => {
     if (eventType === 'todos') return true
-    if (eventType === 'online') return evento.online === true
-    if (eventType === 'presencial') return evento.online === false
+    if (eventType === 'online') return evento.modalidade === 'online'
+    if (eventType === 'presencial') return evento.modalidade === 'presencial'
+    if (eventType === 'híbrido') return evento.modalidade === 'híbrido'
   })
 
   const totalPaginas = Math.ceil(eventosFiltrados.length / eventosPorPagina)

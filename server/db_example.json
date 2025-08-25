@@ -11,7 +11,10 @@
       "link_github": "https://github.com/PHPcomRapadura/",
       "logo_url": "/images/logos/php-com-rapadura-logo.png",
       "atualizado_em": "2025-08-20T10:23:19.496Z",
-      "id": "1"
+      "id": "1",
+      "slug": "php-com-rapadura",
+      "ativo": true,
+      "criado_em": "2025-08-07T11:53:51.275743"
     },
     {
       "ativo": true,
@@ -143,7 +146,7 @@
       "id": "3",
       "id_comunidade": 3,
       "link": "https://www.frontendday.com.br/",
-      "online": false,
+      "modalidade": "presencial",
       "titulo": "Frontend Day 2025"
     },
     {
@@ -162,7 +165,7 @@
       "id": "1",
       "id_comunidade": 1,
       "link": "https://phpcomrapadura.org/eventos/",
-      "online": false,
+      "modalidade": "presencial",
       "titulo": "PHPinga"
     },
     {
@@ -181,7 +184,7 @@
       "id": "2",
       "id_comunidade": 2,
       "link": "https://www.instagram.com/eventdevcommunities",
-      "online": false,
+      "modalidade": "híbrido",
       "titulo": "Decola Júnior 2025"
     },
     {
@@ -200,7 +203,7 @@
       "id": "4",
       "id_comunidade": 4,
       "link": "https://www.instagram.com/coda.ce/",
-      "online": true,
+      "modalidade": "online",
       "titulo": "Evento Online Coda CE 2025"
     },
     {
@@ -219,7 +222,7 @@
       "id": "5",
       "id_comunidade": 5,
       "link": "https://www.instagram.com/eventdevcommunities",
-      "online": false,
+      "modalidade": "presencial",
       "titulo": "Evento Python Nordeste 2025"
     },
     {
@@ -238,7 +241,7 @@
       "id": "6",
       "id_comunidade": 6,
       "link": "https://www.sympla.com.br/evento/6-encontro-rh-otimizado/2370745?referrer=www.google.com",
-      "online": false,
+      "modalidade": "presencial",
       "titulo": "Evento RH Otimizado 2025"
     },
     {
@@ -257,7 +260,7 @@
       "id": "7",
       "id_comunidade": 7,
       "link": "https://www.javascript-ceara.org/#events",
-      "online": false,
+      "modalidade": "híbrido",
       "titulo": "Evento JavaScript Ceará 2025"
     },
     {
@@ -276,7 +279,7 @@
       "id": "8",
       "id_comunidade": 8,
       "link": "https://www.instagram.com/ghcfortaleza/",
-      "online": false,
+      "modalidade": "presencial",
       "titulo": "Evento GitTogether 2025"
     }
   ],

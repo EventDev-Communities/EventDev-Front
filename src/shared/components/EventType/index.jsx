@@ -23,7 +23,7 @@ export default function EventTypeSelector({ value, onChange }) {
           sx={{
             gap: 1
           }}>
-          {['todos', 'online', 'presencial'].map((type) => (
+          {['todos', 'online', 'presencial', 'híbrido'].map((type) => (
             <ToggleButton
               key={type}
               value={type}
@@ -31,7 +31,7 @@ export default function EventTypeSelector({ value, onChange }) {
               sx={{
                 '&': {
                   py: 1,
-                  px: 3,
+                  px: 2,
                   fontSize: '12px',
                   border: 'none',
                   textWrap: 'nowrap',
@@ -51,6 +51,7 @@ export default function EventTypeSelector({ value, onChange }) {
               {type === 'todos' && 'Todos'}
               {type === 'online' && 'Online'}
               {type === 'presencial' && 'Presencial'}
+              {type === 'híbrido' && 'Híbrido'}
             </ToggleButton>
           ))}
         </ToggleButtonGroup>

@@ -12,6 +12,7 @@ import Footer from '@/shared/components/Footer'
 import CommunityProfile from './pages/CommunityProfile'
 import PageNotFound from './pages/PageNotFound'
 import CommunityEdit from './pages/CommunityEdit'
+import EditEvent from './pages/EditEvent'
 
 export default function App() {
   return (
@@ -43,12 +44,16 @@ export default function App() {
           element={<CommunityProfile isOwner={true} />}
         />
         <Route
-          path='/editar-comunidade/:communityId'
+          path='comunidade/editar-perfil/:communityId'
           element={<CommunityEdit />}
         />
         <Route
-          path='/criacao-de-eventos'
+          path='/criacao-de-eventos/:comunidadeId'
           element={<CreateEvent />}
+        />
+        <Route
+          path='/editar-evento/:eventoId'
+          element={<EditEvent />}
         />
         <Route
           path='/perfil-comunidade/:communitySlug'

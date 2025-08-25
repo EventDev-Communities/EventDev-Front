@@ -39,8 +39,7 @@ export default function Home() {
 
   const filteredEventos = eventos?.filter((evento) => {
     if (eventType === 'todos') return true
-    if (eventType === 'online') return evento.online === true
-    if (eventType === 'presencial') return evento.online === false
+    if (eventType === 'online') return evento.modalidade === 'online'
     return true
   })
 

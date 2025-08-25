@@ -1,35 +1,46 @@
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
-import CardActionArea from '@mui/material/CardActionArea'
 import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
 import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
-
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import LinkIcon from '@mui/icons-material/Link'
 import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined'
+import { useState } from 'react'
 
-export default function CardEvent({ evento }) {
+export default function CardEvent({ evento, isOwner = false, onEdit, onDelete }) {
+  const [confirmOpen, setConfirmOpen] = useState(false)
+
   if (!evento || !evento.comunidade) return null
 
+  const handleDeleteClick = () => {
+    setConfirmOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    setConfirmOpen(false)
+    onDelete()
+  }
+
+  const handleCancelDelete = () => {
+    setConfirmOpen(false)
+  }
+
   return (
-    <Card
-      sx={{
-        boxSizing: 'border-box',
-        borderRadius: 2,
-        width: '100%',
-        maxWidth: {
-          xs: '100%',
-          sm: '40%',
-          md: '22%'
-        }
-      }}>
-      <CardActionArea>
+    <Card sx={{ boxSizing: 'border-box', borderRadius: 2, width: '100%' }}>
+      <Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, padding: 1 }}>
           <Avatar
-            alt='Logo Front-End CE'
+            alt={`Logo ${evento.comunidade.nome}`}
             src={evento.comunidade.logo_url}
           />
           <Typography
@@ -40,11 +51,11 @@ export default function CardEvent({ evento }) {
             {evento.comunidade.nome}
           </Typography>
         </Box>
-        <Box sx={{ position: 'relative', width: '294.75px', height: '320px', margin: 'auto' }}>
+        <Box sx={{ position: 'relative', width: '100%', height: '320px', margin: 'auto' }}>
           <CardMedia
             component='img'
             image={evento.capa_url}
-            alt='Evento React'
+            alt={`Capa do evento ${evento.titulo}`}
             sx={{
               width: '100%',
               height: '320px',
@@ -68,7 +79,8 @@ export default function CardEvent({ evento }) {
               alignItems: 'flex-end',
               justifyContent: 'left',
               bgcolor: 'rgba(0, 0, 0, 0.118)'
-            }}></Box>
+            }}
+          />
         </Box>
         <CardContent>
           <Typography
@@ -112,8 +124,60 @@ export default function CardEvent({ evento }) {
               </Link>
             </Box>
           </Box>
+          {isOwner && (
+            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+              <Button
+                size='small'
+                startIcon={<EditIcon />}
+                onClick={onEdit}
+                sx={{
+                  'minWidth': 0,
+                  'px': '0 !important',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    boxShadow: 'none'
+                  }
+                }}
+                aria-label='Editar evento'></Button>
+              <Button
+                color='error'
+                size='small'
+                startIcon={<DeleteIcon />}
+                onClick={handleDeleteClick}
+                sx={{
+                  'minWidth': 0,
+                  'px': '0 !important',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    boxShadow: 'none'
+                  }
+                }}
+                aria-label='Excluir evento'></Button>
+            </Box>
+          )}
         </CardContent>
-      </CardActionArea>
+      </Box>
+      <Dialog
+        open={confirmOpen}
+        onClose={handleCancelDelete}>
+        <DialogTitle>Excluir evento</DialogTitle>
+        <DialogContent>
+          <Typography>Tem certeza que deseja excluir este evento?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleCancelDelete}
+            variant='outlined'>
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleConfirmDelete}
+            color='error'
+            variant='contained'>
+            Excluir
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   )
 }
