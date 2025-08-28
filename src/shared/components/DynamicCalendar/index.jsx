@@ -8,10 +8,8 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/pt-br'
 dayjs.locale('pt-br')
 
-const highlightedDays = [7, 8, 16, 20] // dias com evento
-
 function ServerDay(props) {
-  const { day, outsideCurrentMonth, ...other } = props
+  const { day, outsideCurrentMonth, highlightedDays = [], ...other } = props
 
   const isSelected = !outsideCurrentMonth && highlightedDays.includes(day.date())
 
@@ -30,13 +28,22 @@ function ServerDay(props) {
   )
 }
 
-export default function DynamicCalendar({ value, onChange }) {
+export default function DynamicCalendar({ value, onChange, highlightedDays = [], onMonthChange }) {
+  // Detect month/year change and call onMonthChange if provided
+  const handleMonthChange = (newDate) => {
+    onMonthChange?.(newDate)
+  }
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DateCalendar
         value={value}
         onChange={onChange}
+        onMonthChange={handleMonthChange}
         slots={{ day: ServerDay }}
+        slotProps={{
+          day: { highlightedDays }
+        }}
         sx={{
           border: '1px solid #E8E8E8',
           borderRadius: 2,

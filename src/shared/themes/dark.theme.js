@@ -223,6 +223,16 @@ export const darkTheme = {
       styleOverrides: {
         root: {
           borderRadius: '16px'
+        },
+        sizeSmall: {
+          '& .MuiChip-label': {
+            fontSize: '0.1rem'
+          }
+        },
+        sizeMedium: {
+          '& .MuiChip-label': {
+            fontSize: '0.75rem'
+          }
         }
       }
     },

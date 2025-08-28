@@ -2,13 +2,14 @@ import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
 
 export default function EventCountChip({ count }) {
+  const label = count === 1 ? 'evento' : 'eventos'
   return (
     <Chip
       label={
         <Typography
           variant='body2'
           sx={{ fontWeight: 500, fontSize: '0.75rem' }}>
-          {`${count} eventos`}
+          {`${count} ${label}`}
         </Typography>
       }
       variant='outlined'

@@ -1,4 +1,3 @@
-import React from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Paper from '@mui/material/Paper'
@@ -7,7 +6,7 @@ import EventAvailableIcon from '@mui/icons-material/EventAvailable'
 import EventCountBadge from '@/shared/components/EventCountBadge'
 import CardEventHorizontal from '../CardEvent/CardEventHorizontal'
 
-export default function SelectedDatePanel({ selectedDate, eventsCount }) {
+export default function SelectedDatePanel({ selectedDate, eventos = [] }) {
   const formatDate = (dateStr) => {
     const options = { day: 'numeric', month: 'long', year: 'numeric' }
     return new Date(dateStr).toLocaleDateString('pt-BR', options)
@@ -17,7 +16,7 @@ export default function SelectedDatePanel({ selectedDate, eventsCount }) {
     <Paper
       elevation={0}
       sx={{
-        p: 3,
+        p: { xs: 1, sm: 2, md: 3 },
         borderRadius: 2,
         minHeight: 240,
         display: 'flex',
@@ -34,9 +33,8 @@ export default function SelectedDatePanel({ selectedDate, eventsCount }) {
           fontWeight={500}>
           {formatDate(selectedDate)}
         </Typography>
-        <EventCountBadge count={eventsCount} />
+        <EventCountBadge count={eventos.length} />
       </Box>
-
       <Box
         flexGrow={1}
         mt={4}
@@ -44,7 +42,7 @@ export default function SelectedDatePanel({ selectedDate, eventsCount }) {
         flexDirection='column'
         justifyContent='center'
         alignItems='center'>
-        {eventsCount === 0 ? (
+        {eventos.length === 0 ? (
           <Stack
             alignItems='center'
             spacing={1}>
@@ -64,16 +62,9 @@ export default function SelectedDatePanel({ selectedDate, eventsCount }) {
             </Typography>
           </Stack>
         ) : (
-          <>
-            <CardEventHorizontal selectedDate={selectedDate} />
-            <Box mt={2} />
-            <CardEventHorizontal selectedDate={selectedDate} />
-          </>
-          // <Typography
-          //   variant='body2'
-          //   color='text.secondary'>
-          //   Aqui serão exibidos os eventos do dia selecionado.
-          // </Typography>
+          <Box sx={{ width: '100%' }}>
+            <CardEventHorizontal eventos={eventos} />
+          </Box>
         )}
       </Box>
     </Paper>
