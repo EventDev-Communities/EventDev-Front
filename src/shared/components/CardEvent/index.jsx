@@ -35,6 +35,13 @@ export default function CardEvent({ evento, isOwner = false, onEdit, onDelete })
     setConfirmOpen(false)
   }
 
+  const endereco = evento.endereco
+  const enderecoString = endereco
+    ? `${endereco.rua || ''}${endereco.numero ? `, ${endereco.numero}` : ''}${endereco.bairro ? ` - ${endereco.bairro}` : ''}${endereco.cidade ? `, ${endereco.cidade}` : ''}${endereco.estado ? ` - ${endereco.estado}` : ''}${endereco.cep ? ` (${endereco.cep})` : ''}`
+    : evento.modalidade === 'online'
+      ? 'Evento online'
+      : 'Endereço não informado'
+
   return (
     <Card sx={{ boxSizing: 'border-box', borderRadius: 2, width: '100%' }}>
       <Box>
@@ -109,20 +116,22 @@ export default function CardEvent({ evento, isOwner = false, onEdit, onDelete })
               <Typography
                 variant='body2'
                 sx={{ color: '#64748B' }}>
-                {evento.endereco}
+                {enderecoString}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <LinkIcon sx={{ color: '#64748B' }} />
-              <Link
-                href={evento.link}
-                underline='hover'
-                target='_blank'
-                rel='noopener'
-                sx={{ color: 'primary.main', textDecoration: 'none' }}>
-                Acesse o link do evento
-              </Link>
-            </Box>
+            {evento.link && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <LinkIcon sx={{ color: '#64748B' }} />
+                <Link
+                  href={evento.link}
+                  underline='hover'
+                  target='_blank'
+                  rel='noopener'
+                  sx={{ color: 'primary.main', textDecoration: 'none' }}>
+                  Acesse o link do evento
+                </Link>
+              </Box>
+            )}
           </Box>
           {isOwner && (
             <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
