@@ -108,7 +108,7 @@ export default function Events() {
             sx={{ width: '100%' }}>
             <Box sx={{ flexGrow: 1 }}>
               {view === 'calendar' ? (
-                <CalendarView />
+                <CalendarView eventType={eventType} />
               ) : (
                 <>
                   <CardEventGroup eventos={eventosPaginados} />
