@@ -1,22 +1,33 @@
 export const getEventos = async () => {
   try {
-    const [comunidadesRes, eventosRes] = await Promise.all([fetch('http://localhost:4000/comunidades'), fetch('http://localhost:4000/eventos')])
+    const [comunidadesRes, eventosRes, enderecosRes] = await Promise.all([
+      fetch('http://localhost:4000/comunidades'),
+      fetch('http://localhost:4000/eventos'),
+      fetch('http://localhost:4000/enderecos')
+    ])
 
-    if (!comunidadesRes.ok || !eventosRes.ok) {
+    if (!comunidadesRes.ok || !eventosRes.ok || !enderecosRes.ok) {
       throw new Error('Network response was not ok')
     }
 
     const comunidadesData = await comunidadesRes.json()
     const eventosData = await eventosRes.json()
+    const enderecosData = await enderecosRes.json()
 
     const comunidadesMap = comunidadesData.reduce((acc, comunidade) => {
       acc[comunidade.id] = comunidade
       return acc
     }, {})
 
+    const enderecosMap = enderecosData.reduce((acc, endereco) => {
+      acc[endereco.id] = endereco
+      return acc
+    }, {})
+
     return eventosData.map((evento) => ({
       ...evento,
-      comunidade: comunidadesMap[evento.id_comunidade] || null
+      comunidade: comunidadesMap[evento.id_comunidade] || null,
+      endereco: evento.id_endereco ? enderecosMap[evento.id_endereco] || null : null
     }))
   } catch (error) {
     console.error('Erro ao buscar eventos:', error)
