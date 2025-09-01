@@ -78,7 +78,7 @@ export default function Events() {
           variant='h3'
           component='h1'
           gutterBottom
-          sx={{ fontWeight: 'semibold' }}>
+          sx={{ fontWeight: 'semibold', mt: 3 }}>
           Eventos
         </Typography>
         <Typography

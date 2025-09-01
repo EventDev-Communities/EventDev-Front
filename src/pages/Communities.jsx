@@ -65,7 +65,7 @@ export default function Communities() {
           variant='h3'
           component='h1'
           gutterBottom
-          sx={{ fontWeight: 'semibold' }}>
+          sx={{ fontWeight: 'semibold', mt: 3 }}>
           Comunidades
         </Typography>
 
