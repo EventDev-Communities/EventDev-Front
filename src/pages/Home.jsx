@@ -6,7 +6,7 @@ import SectionHeader from '@/shared/components/SectionHeader'
 import EventViewToggle from '@/shared/components/EventViewToggle'
 import CardEventGroup from '@/shared/components/CardEvent/CardEventGroup'
 import FeaturedCardGroup from '@/shared/components/FeaturedCard/FeaturedCardGroup'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getEventos } from '../api/eventos'
 import { getComunidades } from '../api/comunidades'
@@ -37,11 +37,26 @@ export default function Home() {
   const isLoading = isLoadingComunidades || isLoadingEventos
   const error = errorComunidades || errorEventos
 
-  const filteredEventos = eventos?.filter((evento) => {
-    if (eventType === 'todos') return true
-    if (eventType === 'online') return evento.modalidade === 'online'
-    return true
-  })
+  const sortedFutureEvents = useMemo(() => {
+    if (!eventos) return []
+
+    const now = new Date()
+
+    return eventos
+      .filter((evento) => {
+        const start = new Date(evento.data_hora_inicial)
+        if (isNaN(start) || start < now) return false // ignora inválidos e passados
+
+        if (eventType === 'online') {
+          return evento.modalidade === 'online' || evento.modalidade === 'híbrido'
+        }
+
+        return true
+      })
+      .sort((a, b) => {
+        return new Date(a.data_hora_inicial) - new Date(b.data_hora_inicial)
+      })
+  }, [eventos, eventType])
 
   if (isLoading) {
     return (
@@ -91,7 +106,7 @@ export default function Home() {
           eventType={eventType}
           setEventType={setEventType}
         />
-        <CardEventGroup eventos={filteredEventos?.slice(0, 4)} />
+        <CardEventGroup eventos={sortedFutureEvents?.slice(0, 4)} />
         <SectionHeader
           title='Comunidades em Destaque'
           subtitle='Conheça as comunidades dev mais ativas da plataforma'
