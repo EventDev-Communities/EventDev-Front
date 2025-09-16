@@ -4,6 +4,8 @@ import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 
 export default function CommunityProfilePicture({ comunidade }) {
+  if (!comunidade) return <p>Carregando...</p>
+
   return (
     <Container maxWidth='lg'>
       <Box
@@ -16,36 +18,21 @@ export default function CommunityProfilePicture({ comunidade }) {
           px: { xs: 1, sm: 2 }
         }}>
         <Avatar
-          src={comunidade?.logo_url}
-          alt={`Logo da ${comunidade?.nome}`}
+          src={comunidade.logo_url}
+          alt={`Logo da ${comunidade.name}`}
           sx={{
-            width: {
-              xs: 120,
-              sm: 150,
-              md: 180,
-              lg: 200
-            },
-            height: {
-              xs: 120,
-              sm: 150,
-              md: 180,
-              lg: 200
-            },
+            width: { xs: 120, sm: 150, md: 180, lg: 200 },
+            height: { xs: 120, sm: 150, md: 180, lg: 200 },
             flexShrink: 0,
             border: '3px solid',
             borderColor: 'divider',
             boxShadow: 2,
-            bgcolor: comunidade?.logo_url ? 'transparent' : 'primary.main',
-            color: comunidade?.logo_url ? 'inherit' : 'primary.contrastText',
-            fontSize: {
-              xs: '3rem',
-              sm: '3.5rem',
-              md: '4rem',
-              lg: '4.5rem'
-            },
+            bgcolor: comunidade.logo_url ? 'transparent' : 'primary.main',
+            color: comunidade.logo_url ? 'inherit' : 'primary.contrastText',
+            fontSize: { xs: '3rem', sm: '3.5rem', md: '4rem', lg: '4.5rem' },
             fontWeight: 600
           }}>
-          {comunidade?.nome?.charAt(0)?.toUpperCase()}
+          {!comunidade.logo_url && comunidade.name.charAt(0).toUpperCase()}
         </Avatar>
 
         <Box
@@ -59,21 +46,16 @@ export default function CommunityProfilePicture({ comunidade }) {
             variant='h3'
             component='h1'
             sx={{
-              fontSize: {
-                xs: '1.75rem',
-                sm: '2.125rem',
-                md: '2.5rem',
-                lg: '3rem'
-              },
+              fontSize: { xs: '1.75rem', sm: '2.125rem', md: '2.5rem', lg: '3rem' },
               fontWeight: 700,
               mb: 1,
               wordBreak: 'break-word',
               lineHeight: 1.2
             }}>
-            {comunidade?.nome}
+            {comunidade.name}
           </Typography>
 
-          {comunidade?.descricao && (
+          {comunidade.description && (
             <Typography
               variant='body1'
               color='text.secondary'
@@ -83,19 +65,8 @@ export default function CommunityProfilePicture({ comunidade }) {
                 maxWidth: { xs: '100%', md: '600px' },
                 wordBreak: 'break-word'
               }}>
-              {comunidade.descricao}
+              {comunidade.description}
             </Typography>
-          )}
-
-          {(comunidade?.link_website || comunidade?.link_instagram || comunidade?.link_linkedin || comunidade?.link_github) && (
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 1,
-                mt: 2,
-                justifyContent: { xs: 'center', md: 'flex-start' }
-              }}></Box>
           )}
         </Box>
       </Box>

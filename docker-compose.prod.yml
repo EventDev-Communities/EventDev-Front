@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .docker/node/Dockerfile.prod
+      args:
+        - NODE_ENV=production
+        - VITE_API_URL=${VITE_API_URL}
+        - VITE_APP_NAME=${VITE_APP_NAME}
+        - VITE_ENABLE_DEVTOOLS=${VITE_ENABLE_DEVTOOLS:-false}
+        - VITE_ENABLE_MOCK_API=${VITE_ENABLE_MOCK_API:-false}
+    container_name: eventdev-frontend-prod
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.5'
+        reservations:
+          memory: 64M
+          cpus: '0.25'
+    networks:
+      - eventdev-prod-network
+    expose:
+      - '80'
+
+networks:
+  eventdev-prod-network:
+    external: true

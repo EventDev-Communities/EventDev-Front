@@ -9,8 +9,6 @@ import Typography from '@mui/material/Typography'
 import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
 
-import WarningIcon from '@mui/icons-material/Warning'
-
 export default function DeleteCommunityDialog({ open, onClose, onConfirm, communityName, isDeleting = false }) {
   const [confirmationText, setConfirmationText] = useState('')
   const [error, setError] = useState('')

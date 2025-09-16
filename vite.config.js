@@ -15,12 +15,30 @@ export default defineConfig({
   },
   plugins: [react()],
   server: {
-    port: 3000,
-    open: true
+    host: '0.0.0.0',
+    port: 5173,
+    strictPort: true,
+    hmr: {
+      port: 5173
+    }
   },
   build: {
     outDir: 'dist',
     minify: 'esbuild',
-    sourcemap: true
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          mui: ['@mui/material', '@mui/icons-material'],
+          router: ['react-router-dom']
+        }
+      }
+    }
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 5173,
+    strictPort: true
   }
 })

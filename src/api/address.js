@@ -1,6 +1,8 @@
+import { API_BASE_URL } from '../config/api.js'
+
 export const getEnderecos = async () => {
   try {
-    const response = await fetch('http://localhost:4000/enderecos')
+    const response = await fetch(`${API_BASE_URL}/address`)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -13,7 +15,7 @@ export const getEnderecos = async () => {
 
 export const getEnderecoById = async (id) => {
   try {
-    const response = await fetch(`http://localhost:4000/enderecos/${id}`)
+    const response = await fetch(`${API_BASE_URL}/address/${id}`)
     if (!response.ok) {
       throw new Error('Erro ao buscar endereço')
     }
@@ -27,21 +29,22 @@ export const getEnderecoById = async (id) => {
 export const createEndereco = async (dadosEndereco) => {
   try {
     const payload = {
-      ...dadosEndereco,
-      criado_em: new Date().toISOString(),
-      atualizado_em: new Date().toISOString()
+      ...dadosEndereco
     }
 
-    const response = await fetch('http://localhost:4000/enderecos', {
+    const response = await fetch(`${API_BASE_URL}/address`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(payload)
     })
 
     if (!response.ok) {
-      throw new Error('Erro ao criar endereço')
+      const errorText = await response.text()
+      console.error('Erro da API (endereço):', errorText)
+      throw new Error(`Erro ${response.status}: ${errorText}`)
     }
 
     return await response.json()
@@ -58,11 +61,12 @@ export const updateEndereco = async (id, dadosEndereco) => {
       atualizado_em: new Date().toISOString()
     }
 
-    const response = await fetch(`http://localhost:4000/enderecos/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/address/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(payload)
     })
 
@@ -79,8 +83,9 @@ export const updateEndereco = async (id, dadosEndereco) => {
 
 export const deleteEndereco = async (id) => {
   try {
-    const response = await fetch(`http://localhost:4000/enderecos/${id}`, {
-      method: 'DELETE'
+    const response = await fetch(`${API_BASE_URL}/address/${id}`, {
+      method: 'DELETE',
+      credentials: 'include'
     })
 
     if (!response.ok) {

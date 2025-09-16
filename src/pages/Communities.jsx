@@ -5,8 +5,8 @@ import FeaturedCardGroup from '@/shared/components/FeaturedCard/FeaturedCardGrou
 import Pagination from '@mui/material/Pagination'
 import Box from '@mui/material/Box'
 import { useState, useEffect } from 'react'
-import { getComunidades } from '../api/comunidades'
 import CircularProgress from '@mui/material/CircularProgress'
+import { getCommunities } from '../api/community'
 
 export default function Communities() {
   const [comunidades, setComunidades] = useState([])
@@ -17,7 +17,7 @@ export default function Communities() {
   useEffect(() => {
     const fetchComunidades = async () => {
       try {
-        const result = await getComunidades()
+        const result = await getCommunities()
         setComunidades(result)
       } catch (error) {
         console.error('Erro ao buscar comunidades:', error)
@@ -79,7 +79,7 @@ export default function Communities() {
 
       <Searchbar
         showToggle={false}
-        placeholderText='Buscar comunidade...'
+        placeholderText='Buscar community...'
         filterOptions={[
           { value: 'recent', label: 'Mais recentes' },
           { value: 'popular', label: 'Mais populares' },

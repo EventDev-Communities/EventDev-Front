@@ -2,7 +2,7 @@
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
-    "package.json": ".editor*, .git*, vite*, eslint*, jsconfig*, .eslint*, .prettier*, postcss*, tailwind*, package*, .docker*, .env*"
+    "package.json": ".editor*, .git*, vite*, eslint*, jsconfig*, .eslint*, .prettier*, postcss*, tailwind*, package*, .docker*, .env*, docker*, pnpm*, tsconfig*, nest*, Make*, setup*, prisma*"
   },
   "files.exclude": {
     "dist": false,

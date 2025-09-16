@@ -6,14 +6,16 @@ import SectionHeader from '@/shared/components/SectionHeader'
 import EventViewToggle from '@/shared/components/EventViewToggle'
 import CardEventGroup from '@/shared/components/CardEvent/CardEventGroup'
 import FeaturedCardGroup from '@/shared/components/FeaturedCard/FeaturedCardGroup'
-import { useMemo, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { getEventos } from '../api/eventos'
-import { getComunidades } from '../api/comunidades'
 import CircularProgress from '@mui/material/CircularProgress'
 import Typography from '@mui/material/Typography'
+import { getCommunities } from '../api/community'
+import { getEvents } from '../api/event'
+import { AuthContext } from '../shared/providers/AuthContext'
 
 export default function Home() {
+  const { user } = useContext(AuthContext)
   const [eventType, setEventType] = useState('todos')
 
   const {
@@ -22,7 +24,7 @@ export default function Home() {
     error: errorComunidades
   } = useQuery({
     queryKey: ['comunidades'],
-    queryFn: getComunidades
+    queryFn: getCommunities
   })
 
   const {
@@ -31,7 +33,7 @@ export default function Home() {
     error: errorEventos
   } = useQuery({
     queryKey: ['eventos'],
-    queryFn: getEventos
+    queryFn: getEvents
   })
 
   const isLoading = isLoadingComunidades || isLoadingEventos
@@ -94,7 +96,7 @@ export default function Home() {
 
   return (
     <Box sx={{ paddingTop: '4.5rem' }}>
-      <HeroSection />
+      <HeroSection comunidadeId={user?.comunidade_id} />
       <Container maxWidth='xl'>
         <SectionHeader
           title='Eventos em Destaque'

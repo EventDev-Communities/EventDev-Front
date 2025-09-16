@@ -36,13 +36,14 @@ export default function LogoPreviewCard({ imageData }) {
           {imageData ? (
             <Box
               component='img'
-              src={imageData.url}
-              alt={imageData.name}
+              src={typeof imageData === 'string' ? imageData : imageData.url}
+              alt={typeof imageData === 'string' ? 'Logo' : imageData.name}
               sx={{
                 width: '100%',
                 height: '100%',
                 border: '1px solid #dee3e9',
-                borderRadius: 2
+                borderRadius: 2,
+                objectFit: 'cover'
               }}
             />
           ) : (

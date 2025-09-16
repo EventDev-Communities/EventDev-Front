@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import AppBar from '@mui/material/AppBar'
-import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -10,53 +9,108 @@ import Link from '@mui/material/Link'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Toolbar from '@mui/material/Toolbar'
-import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 
 import MenuIcon from '@mui/icons-material/Menu'
 
 import logoImage from '@/shared/assets/static/images/logo.png'
-import ThemeToggle from '@/shared/components/ThemeToggle'
+import { useAuth } from '@/shared/providers/useAuth'
+import { getUserCommunity } from '@/api/community'
 
 const pages = ['Eventos', 'Comunidades']
-const settings = ['Logout']
 
 export default function Navbar() {
   const [anchorElNav, setAnchorElNav] = useState(null)
-  const [anchorElUser, setAnchorElUser] = useState(null)
+  const [userCommunity, setUserCommunity] = useState(null)
+  const [communityLoading, setCommunityLoading] = useState(false)
+  const { isAuthenticated, signOut, user } = useAuth()
 
-  // const [currentUser, setCurrentUser] = useState(null)
-  const [currentUser] = useState(null)
+  // Função para determinar a role principal do usuário
+  const getUserRole = () => {
+    if (!user || !user.roles || user.roles.length === 0) return null
+
+    // Prioridade: admin > community > user
+    if (user.roles.includes('admin')) return 'ADMIN'
+    if (user.roles.includes('community')) return 'COMMUNITY'
+    if (user.roles.includes('user')) return 'USER'
+
+    // Fallback para a primeira role encontrada
+    return user.roles[0].toUpperCase()
+  }
+
+  // Função para verificar se o usuário tem role community
+  const isCommunityUser = () => {
+    return user && user.roles && user.roles.includes('community')
+  }
+
+  useEffect(() => {
+    const fetchUserCommunity = async () => {
+      if (isAuthenticated && isCommunityUser()) {
+        setCommunityLoading(true)
+        try {
+          const community = await getUserCommunity()
+          setUserCommunity(community)
+        } catch (error) {
+          console.error('Erro ao buscar comunidade do usuário:', error)
+          setUserCommunity(null)
+        } finally {
+          setCommunityLoading(false)
+        }
+      } else {
+        setUserCommunity(null)
+        setCommunityLoading(false)
+      }
+    }
+
+    fetchUserCommunity()
+  }, [isAuthenticated, user])
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget)
-  }
-
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget)
   }
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null)
   }
 
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null)
+  const handleLoginClick = async () => {
+    if (isAuthenticated) {
+      // Se estiver logado, fazer logout
+      await signOut()
+    } else {
+      // Se não estiver logado, ir para login
+      window.location.href = '/login'
+    }
   }
 
-  const handleLoginClick = () => {
-    /* Criar lógica de login
-    setCurrentUser('usuarioLogado')
-    window.location.change()
-    */
+  // Função para determinar o link e texto do botão da comunidade
+  const getCommunityButtonProps = () => {
+    if (!isCommunityUser()) return null
+
+    if (communityLoading) {
+      return {
+        text: 'Carregando...',
+        href: '#',
+        disabled: true
+      }
+    }
+
+    if (userCommunity) {
+      return {
+        text: 'Meu Perfil',
+        href: `/meu-perfil/${userCommunity.id}`,
+        disabled: false
+      }
+    } else {
+      return {
+        text: 'Cadastrar Comunidade',
+        href: '/cadastro-comunidade',
+        disabled: false
+      }
+    }
   }
 
-  const handleCreateEvent = () => {
-    /* Criar lógica de login
-    setCurrentUser('event')
-    window.location.change()
-    */
-  }
+  const communityButtonProps = getCommunityButtonProps()
 
   return (
     <AppBar
@@ -125,43 +179,144 @@ export default function Navbar() {
               }}
               keepMounted
               transformOrigin={{
-                vertical: 'bottom',
+                vertical: 'top',
                 horizontal: 'right'
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{
-                mt: '55px',
                 display: {
-                  sm: 'flex',
-                  md: 'none'
+                  xs: 'block',
+                  sm: 'none'
+                }
+              }}
+              PaperProps={{
+                sx: {
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  width: '100vw',
+                  height: '100vh',
+                  maxWidth: 'none',
+                  maxHeight: 'calc(100vh - 16px)',
+                  margin: 0,
+                  borderRadius: 0,
+                  backgroundColor: 'white',
+                  boxShadow: 'none',
+                  overflow: 'hidden'
+                }
+              }}
+              MenuListProps={{
+                sx: {
+                  padding: '5rem 2rem 2rem 2rem',
+                  height: '100%',
+                  maxHeight: 'calc(100vh - 3rem)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-start',
+                  gap: '1rem',
+                  overflowY: 'auto'
                 }
               }}>
-              {pages.map((page) => (
-                <MenuItem
-                  key={page}
-                  component='a'
-                  href={`/${page.toLowerCase()}`}
+              <Box sx={{ position: 'absolute', top: 20, right: 55, zIndex: 10 }}>
+                <IconButton
+                  aria-label='Fechar menu'
                   onClick={handleCloseNavMenu}
-                  sx={{
-                    'textAlign': 'center',
-                    'color': 'text.main',
-                    '&:hover': {
-                      color: 'primary.main',
-                      backgroundColor: 'transparent'
-                    }
-                  }}>
-                  {page}
-                </MenuItem>
-              ))}
+                  sx={{ color: 'text.main' }}>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='24'
+                    height='24'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'>
+                    <line
+                      x1='18'
+                      y1='6'
+                      x2='6'
+                      y2='18'
+                    />
+                    <line
+                      x1='6'
+                      y1='6'
+                      x2='18'
+                      y2='18'
+                    />
+                  </svg>
+                </IconButton>
+              </Box>
+              {[
+                ...pages.map((page) => (
+                  <MenuItem
+                    key={page}
+                    component='a'
+                    href={`/${page.toLowerCase()}`}
+                    onClick={handleCloseNavMenu}
+                    sx={{
+                      'textAlign': 'center',
+                      'color': 'text.main',
+                      '&:hover': {
+                        color: 'primary.main'
+                      }
+                    }}>
+                    {page}
+                  </MenuItem>
+                )),
+                ...(isAuthenticated
+                  ? [
+                      ...(getUserRole()
+                        ? [
+                            <MenuItem
+                              key='user-role'
+                              onClick={handleCloseNavMenu}
+                              sx={{
+                                textAlign: 'center',
+                                color: 'gray',
+                                fontWeight: '400',
+                                fontSize: '0.75rem',
+                                cursor: 'default'
+                              }}>
+                              {getUserRole()}
+                            </MenuItem>
+                          ]
+                        : []),
+                      ...(communityButtonProps
+                        ? [
+                            <MenuItem
+                              key='community-action'
+                              component={communityButtonProps.disabled ? 'div' : 'a'}
+                              href={communityButtonProps.disabled ? undefined : communityButtonProps.href}
+                              onClick={handleCloseNavMenu}
+                              sx={{
+                                textAlign: 'center',
+                                color: '#FC692D',
+                                fontWeight: '600',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                opacity: communityButtonProps.disabled ? 0.6 : 1,
+                                cursor: communityButtonProps.disabled ? 'default' : 'pointer'
+                              }}>
+                              {communityButtonProps.text}
+                            </MenuItem>
+                          ]
+                        : [])
+                    ]
+                  : [])
+              ]}
             </Menu>
           </Box>
 
           <Box
             sx={{
               flexGrow: 1,
-              ml: '0.65rem',
-              columnGap: '10px',
+              ml: '0.5rem',
+              columnGap: '1px',
               display: {
                 xs: 'none',
                 sm: 'flex'
@@ -181,7 +336,7 @@ export default function Navbar() {
                     fontWeight: '700'
                   },
                   '&:hover': {
-                    color: 'primary.main'
+                    color: '#E55D2B'
                   }
                 }}>
                 {page}
@@ -194,70 +349,76 @@ export default function Navbar() {
               flexGrow: 0,
               paddingX: 0,
               display: 'flex',
-              alignItems: 'center'
+              alignItems: 'center',
+              gap: 1
             }}>
-            {!currentUser ? (
+            {!isAuthenticated ? (
               <Button
-                href='/login'
                 variant='contained'
-                onClick={handleLoginClick}>
+                onClick={handleLoginClick}
+                sx={{
+                  display: {
+                    xs: 'none',
+                    sm: 'flex'
+                  }
+                }}>
                 Entrar
               </Button>
             ) : (
-              <Tooltip>
+              <>
+                {getUserRole() && (
+                  <Typography
+                    variant='caption'
+                    sx={{
+                      fontSize: '0.6rem',
+                      color: 'gray',
+                      fontWeight: 400,
+                      alignSelf: 'center',
+                      display: {
+                        xs: 'none',
+                        sm: 'block'
+                      }
+                    }}>
+                    {getUserRole()}
+                  </Typography>
+                )}
+                {communityButtonProps && (
+                  <Button
+                    variant='text'
+                    href={communityButtonProps.disabled ? undefined : communityButtonProps.href}
+                    disabled={communityButtonProps.disabled}
+                    sx={{
+                      color: '#FC692D',
+                      fontWeight: '600',
+                      opacity: communityButtonProps.disabled ? 0.6 : 1,
+                      display: {
+                        xs: 'none',
+                        sm: 'flex'
+                      }
+                    }}>
+                    {communityButtonProps.text}
+                  </Button>
+                )}
                 <Button
-                  href='/login'
-                  onClick={handleCreateEvent}
+                  variant='outlined'
+                  onClick={handleLoginClick}
                   sx={{
-                    color: 'white',
-                    textWrap: 'nowrap',
-                    backgroundColor: '#FC692D',
-                    justifyContent: 'space-between'
+                    'color': '#FC692D',
+                    'borderColor': '#FC692D',
+                    'display': {
+                      xs: 'none',
+                      sm: 'flex'
+                    },
+                    '&:hover': {
+                      backgroundColor: '#E55D2B',
+                      borderColor: '#E55D2B',
+                      color: 'white'
+                    }
                   }}>
-                  Criar Evento
+                  Sair
                 </Button>
-                <IconButton
-                  id='logged'
-                  onClick={handleOpenUserMenu}
-                  sx={{
-                    p: 0,
-                    ml: '0.65rem'
-                  }}>
-                  <Avatar
-                    alt='Sharp'
-                    src='/static/images/avatar/2.png'
-                  />
-                </IconButton>
-              </Tooltip>
+              </>
             )}
-            <Menu
-              id='menu-appbar'
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right'
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right'
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-              sx={{
-                mt: '55px'
-              }}>
-              <MenuItem>
-                <ThemeToggle />
-              </MenuItem>
-              {settings.map((setting) => (
-                <MenuItem
-                  key={setting}
-                  onClick={handleCloseUserMenu}>
-                  <Typography textAlign='center'>{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
           </Box>
         </Toolbar>
       </Container>
