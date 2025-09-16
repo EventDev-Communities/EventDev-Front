@@ -1,0 +1,42 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: .docker/node/Dockerfile.prod
+      args:
+        - NODE_ENV=production
+    container_name: frontend-prod
+    env_file:
+      - .env
+    restart: unless-stopped
+    ports:
+      - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=${VITE_API_URL}
+      - VITE_APP_NAME=${VITE_APP_NAME}
+      - VITE_ENABLE_DEVTOOLS=${VITE_ENABLE_DEVTOOLS}
+      - VITE_ENABLE_MOCK_API=${VITE_ENABLE_MOCK_API}
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:${VITE_PORT:-5173}']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    networks:
+      - eventdev-prod-network
+
+volumes:
+  frontend-prod-data:
+
+networks:
+  eventdev-prod-network:
+    external: true

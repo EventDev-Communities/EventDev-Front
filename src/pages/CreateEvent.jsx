@@ -18,8 +18,8 @@ import Alert from '@mui/material/Alert'
 
 import TipCard from '@/shared/components/TipCard'
 import BannerImg from '@/shared/components/UploadBanner'
-import { createEvento } from '@/api/eventos'
-import { getEnderecoByCep, createEndereco } from '@/api/endereco'
+import { createEvent } from '@/api/event'
+import { getEnderecoByCep } from '@/api/address'
 
 const today = new Date().toISOString().split('T')[0]
 
@@ -30,7 +30,7 @@ const eventSchema = z
     data: z.string().refine((val) => val >= today, { message: 'A data não pode ser anterior a hoje' }),
     horarioInicial: z.string().min(1, 'Horário inicial obrigatório'),
     horarioFinal: z.string().min(1, 'Horário final obrigatório'),
-    modalidade: z.enum(['presencial', 'online', 'hibrido'], {
+    modalidade: z.enum(['presential', 'online', 'hybrid'], {
       required_error: 'Selecione a modalidade do evento',
       invalid_type_error: 'Selecione a modalidade do evento'
     }),
@@ -123,45 +123,38 @@ export default function CreateEvent() {
     setIsSubmitting(true)
     setSubmitError('')
 
-    console.log('Form data submitted:', data) // Para debug
+    console.error('Form data submitted:', data) // Para debug
 
     try {
-      // Primeiro, criar o endereço se necessário
-      let enderecoId = null
-      if (data.modalidade !== 'online') {
-        const enderecoData = {
-          cep: data.cep || '',
-          rua: data.rua || '',
-          numero: data.numero || '',
-          bairro: data.bairro || '',
-          cidade: data.cidade || '',
-          estado: data.estado || ''
-        }
-
-        // Criar o endereço usando a API
-        const enderecoResponse = await createEndereco(enderecoData)
-        enderecoId = enderecoResponse.id
-      }
-
       const novoEvento = {
-        titulo: data.nomeEvento,
-        descricao: data.descricaoEvento,
-        data_hora_inicial: `${data.data}T${data.horarioInicial}:00`,
-        data_hora_final: `${data.data}T${data.horarioFinal}:00`,
-        modalidade: data.modalidade,
-        id_comunidade: parseInt(comunidadeId),
-        id_endereco: enderecoId,
-        capa_url: '',
-        link: data.link || '',
-        evento: true,
-        ativo: true,
-        criado_em: new Date().toISOString(),
-        atualizado_em: new Date().toISOString()
+        event: {
+          title: data.nomeEvento,
+          description: data.descricaoEvento,
+          start_date_time: `${data.data}T${data.horarioInicial}:00.000Z`,
+          end_date_time: `${data.data}T${data.horarioFinal}:00.000Z`,
+          modality: data.modalidade === 'presencial' ? 'PRESENTIAL' : data.modalidade === 'online' ? 'ONLINE' : 'HYBRID',
+          id_address: 0, // Será criado automaticamente se address for fornecido
+          link: data.link || '',
+          capa_url: '',
+          is_active: true
+        }
       }
 
-      console.log('Evento to create:', novoEvento) // Para debug
+      // Se for presencial, adicionar address ao payload
+      if (data.modalidade === 'presencial') {
+        novoEvento.address = {
+          cep: (data.cep || '').replace(/\D/g, ''),
+          streetAddress: data.rua || '',
+          number: data.numero || '',
+          neighborhood: data.bairro || '',
+          city: data.cidade || '',
+          state: data.estado || ''
+        }
+      }
 
-      await createEvento(novoEvento)
+      console.error('Evento to create:', novoEvento) // Para debug
+
+      await createEvent(comunidadeId, novoEvento)
       setShowSuccessToast(true)
       reset()
       setTimeout(() => {
@@ -365,9 +358,9 @@ export default function CreateEvent() {
                         labelId='modalidade-label'
                         id='modalidade'
                         label='Modalidade do Evento'>
-                        <MenuItem value='presencial'>Presencial</MenuItem>
+                        <MenuItem value='presential'>Presencial</MenuItem>
                         <MenuItem value='online'>Online</MenuItem>
-                        <MenuItem value='hibrido'>Híbrido</MenuItem>
+                        <MenuItem value='hybrid'>Híbrido</MenuItem>
                       </Select>
                     )}
                   />

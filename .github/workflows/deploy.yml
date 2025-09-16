@@ -1,0 +1,32 @@
+name: Deploy Frontend to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: [self-hosted]
+    steps:
+      - name: Checkout Code with SSH
+        uses: actions/checkout@v3
+        with:
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          persist-credentials: false
+
+      - name: Deploy to DigitalOcean VPS
+        run: |
+          cd /var/www/EventDev-Front
+          git pull --rebase
+          cat <<EOF > .env
+          ${{ secrets.PROD_ENV_FRONTEND }}
+          EOF
+          make prod-down
+          make prod-up
+
+      - name: Health Check
+        run: |
+          cd /var/www/EventDev-Front
+          sleep 30
+          make health

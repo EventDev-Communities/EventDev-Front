@@ -15,19 +15,20 @@ import Snackbar from '@mui/material/Snackbar'
 
 import LogoPreviewCard from '@/shared/components/LogoPreviewCard'
 import UploadImg from '@/shared/components/UploadImg'
-import { getComunidadeById, updateComunidade } from '@/api/comunidades'
+import { getCommunityById, updateCommunity } from '../api/community'
 
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/
 
+// Schema ajustado para os nomes corretos
 const communitySchema = z.object({
-  nomeComunidade: z.string().min(1, 'Nome da comunidade é obrigatório'),
+  nome: z.string().min(1, 'Nome da comunidade é obrigatório'),
   email: z.string().email('E-mail inválido'),
   descricao: z.string().optional(),
   telefone: z.string().optional(),
-  website: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
-  instagram: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
-  linkedin: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
-  github: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal(''))
+  link_website: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
+  link_instagram: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
+  link_linkedin: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
+  link_github: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal(''))
 })
 
 export default function CommunityEdit() {
@@ -63,7 +64,7 @@ export default function CommunityEdit() {
           return
         }
 
-        const comunidadeData = await getComunidadeById(communityId)
+        const comunidadeData = await getCommunityById(communityId)
 
         if (!comunidadeData) {
           setSubmitError('Comunidade não encontrada')
@@ -73,14 +74,14 @@ export default function CommunityEdit() {
         setComunidade(comunidadeData)
 
         reset({
-          nomeComunidade: comunidadeData.nome || '',
+          nome: comunidadeData.nome || '',
           email: comunidadeData.email || '',
           descricao: comunidadeData.descricao || '',
           telefone: comunidadeData.telefone || '',
-          website: comunidadeData.link_website || '',
-          instagram: comunidadeData.link_instagram || '',
-          linkedin: comunidadeData.link_linkedin || '',
-          github: comunidadeData.link_github || ''
+          link_website: comunidadeData.link_website || '',
+          link_instagram: comunidadeData.link_instagram || '',
+          link_linkedin: comunidadeData.link_linkedin || '',
+          link_github: comunidadeData.link_github || ''
         })
 
         if (comunidadeData.logo_url) {
@@ -102,19 +103,12 @@ export default function CommunityEdit() {
     setSubmitSuccess(false)
 
     try {
-      const dadosComunidade = {
-        nome: data.nomeComunidade,
-        email: data.email,
-        descricao: data.descricao || '',
-        telefone: data.telefone || '',
-        link_website: data.website || '',
-        link_instagram: data.instagram || '',
-        link_linkedin: data.linkedin || '',
-        link_github: data.github || '',
+      const dataCommunity = {
+        ...data,
         logo_url: uploadedImage || ''
       }
 
-      await updateComunidade(communityId, dadosComunidade)
+      await updateCommunity(communityId, dataCommunity)
 
       setSubmitSuccess(true)
       setShowSuccessToast(true)
@@ -169,7 +163,6 @@ export default function CommunityEdit() {
           component='h2'>
           Editar Comunidade
         </Typography>
-
         <Typography
           variant='body1'
           component='p'
@@ -210,250 +203,119 @@ export default function CommunityEdit() {
         onSubmit={handleSubmit(onSubmit)}
         sx={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', marginTop: '2rem' }}>
         <Box sx={{ flex: 1, maxWidth: '100%', minWidth: 300 }}>
+          {/* Campos do formulário */}
           <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>
             <Typography
               component='label'
-              htmlFor='nomeComunidade'
+              htmlFor='nome'
               variant='subtitle1'
               fontWeight='bold'
               sx={{ marginBottom: '0.5rem' }}>
               Nome da Comunidade
             </Typography>
-
             <TextField
               required
-              id='nomeComunidade'
+              id='nome'
               placeholder='ex: React Nordeste'
               type='text'
-              {...register('nomeComunidade')}
-              error={!!errors.nomeComunidade}
-              helperText={errors.nomeComunidade?.message}
+              {...register('nome')}
+              error={!!errors.nome}
+              helperText={errors.nome?.message}
               sx={{ width: '100%' }}
             />
-
-            <Typography
-              variant='caption'
-              sx={{ marginTop: '0.5rem', color: 'text.secondary' }}>
-              Nome pelo qual sua comunidade é conhecida.
-            </Typography>
           </Box>
 
           <Box sx={{ display: 'flex', gap: '2rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-            <Box sx={{ flex: 1, minWidth: 200 }}>
-              <Typography
-                component='label'
-                htmlFor='email'
-                variant='subtitle1'
-                fontWeight='bold'
-                sx={{ marginBottom: '0.5rem', display: 'block' }}>
-                E-mail
-              </Typography>
-
-              <TextField
-                required
-                id='email'
-                placeholder='ex: contato@comunidade.dev'
-                autoComplete='email'
-                type='email'
-                {...register('email')}
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                sx={{ width: '100%' }}
-              />
-
-              <Typography
-                variant='caption'
-                sx={{ marginTop: '0.5rem', color: 'text.secondary' }}>
-                Email para login e contato
-              </Typography>
-            </Box>
-
-            <Box sx={{ flex: 1, minWidth: 200 }}>
-              <Typography
-                component='label'
-                htmlFor='telefone'
-                variant='subtitle1'
-                fontWeight='bold'
-                sx={{ marginBottom: '0.5rem', display: 'block' }}>
-                Telefone
-              </Typography>
-
-              <TextField
-                id='telefone'
-                type='tel'
-                placeholder='(85) 99999-9999'
-                {...register('telefone')}
-                error={!!errors.telefone}
-                helperText={errors.telefone?.message}
-                sx={{ width: '100%' }}
-              />
-
-              <Typography
-                variant='caption'
-                sx={{ marginTop: '0.5rem', color: 'text.secondary' }}>
-                Telefone para contato
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>
-            <Typography
-              component='label'
-              htmlFor='descricao'
-              variant='subtitle1'
-              fontWeight='bold'
-              sx={{ marginBottom: '0.5rem' }}>
-              Descrição da Comunidade
-            </Typography>
-
             <TextField
-              id='descricao'
-              placeholder='Descreva o propósito da sua comunidade...'
-              multiline
-              minRows={5}
-              {...register('descricao')}
-              error={!!errors.descricao}
-              helperText={errors.descricao?.message}
-              sx={{ width: '100%' }}
+              id='email'
+              label='E-mail'
+              placeholder='ex: contato@community.dev'
+              type='email'
+              {...register('email')}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+              sx={{ flex: 1, minWidth: 200 }}
             />
-
-            <Typography
-              variant='caption'
-              sx={{ marginTop: '0.5rem', color: 'text.secondary' }}>
-              Uma descrição clara ajudará as pessoas a entenderem a sua comunidade.
-            </Typography>
+            <TextField
+              id='telefone'
+              label='Telefone'
+              type='tel'
+              placeholder='(85) 99999-9999'
+              {...register('telefone')}
+              error={!!errors.telefone}
+              helperText={errors.telefone?.message}
+              sx={{ flex: 1, minWidth: 200 }}
+            />
           </Box>
+
+          <TextField
+            id='descricao'
+            label='Descrição da Comunidade'
+            placeholder='Descreva o propósito da sua comunidade...'
+            multiline
+            minRows={5}
+            {...register('descricao')}
+            error={!!errors.descricao}
+            helperText={errors.descricao?.message}
+            sx={{ width: '100%', marginBottom: '2rem' }}
+          />
 
           <UploadImg onImageUpload={handleImageUpload} />
 
+          {/* Links sociais */}
           <Box sx={{ paddingTop: '2rem' }}>
             <Typography
               variant='h2'
               component='h2'>
               Links Sociais (Opcionais)
             </Typography>
-
-            <Box sx={{ display: 'flex', gap: '2rem', marginBottom: '2rem', flexWrap: 'wrap', marginTop: '2rem' }}>
-              <Box sx={{ flex: 1, minWidth: 200 }}>
-                <Typography
-                  component='label'
-                  htmlFor='instagram'
-                  variant='subtitle1'
-                  fontWeight='bold'
-                  sx={{ marginBottom: '0.5rem', display: 'block' }}>
-                  Instagram
-                </Typography>
-
-                <TextField
-                  id='instagram'
-                  placeholder='https://instagram.com/sua-comunidade'
-                  type='url'
-                  {...register('instagram')}
-                  error={!!errors.instagram}
-                  helperText={errors.instagram?.message}
-                  sx={{ width: '100%' }}
-                />
-
-                <Typography
-                  variant='caption'
-                  sx={{ marginTop: '0.5rem', color: 'text.secondary' }}>
-                  Link para o perfil do Instagram
-                </Typography>
-              </Box>
-
-              <Box sx={{ flex: 1, minWidth: 200 }}>
-                <Typography
-                  component='label'
-                  htmlFor='linkedin'
-                  variant='subtitle1'
-                  fontWeight='bold'
-                  sx={{ marginBottom: '0.5rem', display: 'block' }}>
-                  LinkedIn
-                </Typography>
-
-                <TextField
-                  id='linkedin'
-                  placeholder='https://linkedin.com/in/sua-comunidade'
-                  type='url'
-                  {...register('linkedin')}
-                  error={!!errors.linkedin}
-                  helperText={errors.linkedin?.message}
-                  sx={{ width: '100%' }}
-                />
-
-                <Typography
-                  variant='caption'
-                  sx={{ marginTop: '0.5rem', color: 'text.secondary' }}>
-                  Link para o perfil do LinkedIn
-                </Typography>
-              </Box>
-            </Box>
-
-            <Box sx={{ display: 'flex', gap: '2rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-              <Box sx={{ flex: 1, minWidth: 200 }}>
-                <Typography
-                  component='label'
-                  htmlFor='website'
-                  variant='subtitle1'
-                  fontWeight='bold'
-                  sx={{ marginBottom: '0.5rem', display: 'block' }}>
-                  Website
-                </Typography>
-
-                <TextField
-                  id='website'
-                  placeholder='https://seusite.com.br'
-                  type='url'
-                  {...register('website')}
-                  error={!!errors.website}
-                  helperText={errors.website?.message}
-                  sx={{ width: '100%' }}
-                />
-
-                <Typography
-                  variant='caption'
-                  sx={{ marginTop: '0.5rem', color: 'text.secondary' }}>
-                  Link do site oficial da comunidade
-                </Typography>
-              </Box>
-
-              <Box sx={{ flex: 1, minWidth: 200 }}>
-                <Typography
-                  component='label'
-                  htmlFor='github'
-                  variant='subtitle1'
-                  fontWeight='bold'
-                  sx={{ marginBottom: '0.5rem', display: 'block' }}>
-                  GitHub
-                </Typography>
-
-                <TextField
-                  id='github'
-                  placeholder='https://github.com/sua-comunidade'
-                  type='url'
-                  {...register('github')}
-                  error={!!errors.github}
-                  helperText={errors.github?.message}
-                  sx={{ width: '100%' }}
-                />
-
-                <Typography
-                  variant='caption'
-                  sx={{ marginTop: '0.5rem', color: 'text.secondary' }}>
-                  Link para o repositório ou perfil da comunidade no GitHub
-                </Typography>
-              </Box>
+            <Box sx={{ display: 'flex', gap: '2rem', marginTop: '2rem', flexWrap: 'wrap' }}>
+              <TextField
+                id='link_instagram'
+                label='Instagram'
+                placeholder='https://instagram.com/sua-comunidade'
+                {...register('link_instagram')}
+                error={!!errors.link_instagram}
+                helperText={errors.link_instagram?.message}
+                sx={{ flex: 1, minWidth: 200 }}
+              />
+              <TextField
+                id='link_linkedin'
+                label='LinkedIn'
+                placeholder='https://linkedin.com/in/sua-comunidade'
+                {...register('link_linkedin')}
+                error={!!errors.link_linkedin}
+                helperText={errors.link_linkedin?.message}
+                sx={{ flex: 1, minWidth: 200 }}
+              />
+              <TextField
+                id='link_website'
+                label='Website'
+                placeholder='https://seusite.com.br'
+                {...register('link_website')}
+                error={!!errors.link_website}
+                helperText={errors.link_website?.message}
+                sx={{ flex: 1, minWidth: 200 }}
+              />
+              <TextField
+                id='link_github'
+                label='GitHub'
+                placeholder='https://github.com/sua-comunidade'
+                {...register('link_github')}
+                error={!!errors.link_github}
+                helperText={errors.link_github?.message}
+                sx={{ flex: 1, minWidth: 200 }}
+              />
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
+          <Box sx={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
             <Button
               variant='outlined'
               onClick={() => navigate(-1)}
               disabled={isSubmitting}>
               Cancelar
             </Button>
-
             <Button
               type='submit'
               variant='contained'

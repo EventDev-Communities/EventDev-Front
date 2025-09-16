@@ -1,30 +1,62 @@
 # EventDev Communities
 
-## Iniciar o Projeto
+Frontend da plataforma EventDev construído com React, Vite, Material-UI e TypeScript.
 
-1. `npm install` ou `npm run setup`
+## Setup Rápido
 
-2. `npm run dev`
+### Desenvolvimento Local
 
----
+```bash
+pnpm install       # ou pnpm run setup
+pnpm run dev
+```
+
+### Desenvolvimento com Docker
+
+```bash
+make setup-dev     # Criar .env
+make dev-up        # Iniciar containers
+make dev-logs      # Ver logs
+```
+
+## Comandos Disponíveis
+
+### Docker
+
+| Comando                | Descrição                    |
+| ---------------------- | ---------------------------- |
+| `make dev-up`          | Ambiente desenvolvimento     |
+| `make prod-up`         | Ambiente produção            |
+| `make health`          | Verificar saúde da aplicação |
+| `make create-networks` | Criar redes Docker           |
+| `make status`          | Status dos containers        |
+| `make clean`           | Limpar containers e volumes  |
+
+### Scripts pnpm
+
+| Comando        | Descrição                |
+| -------------- | ------------------------ |
+| `pnpm dev`     | Servidor desenvolvimento |
+| `pnpm build`   | Build para produção      |
+| `pnpm lint`    | Verificar código         |
+| `pnpm format`  | Formatar código          |
+| `pnpm preview` | Preview do build         |
+
+### URLs de Desenvolvimento
+
+- Frontend: <http://localhost:5173>
+- Health Check: <http://localhost:5173> (verificação de funcionamento)
 
 ## Padrões de Nomenclatura
 
 - Branches: `type(scope)/description`
-
 - Commits: `type(scope): description`
-
----
 
 ## Procedimento Inicias
 
 1. Se atribua a uma ISSUE.
-
 2. Crie uma branch seguindo os padrões de nomenclatura (nomeie de acordo com a demanda).
-
 3. Abra um PR a partir da sua branch apontando para a MAIN.
-
----
 
 ## Procedimentos Finais
 

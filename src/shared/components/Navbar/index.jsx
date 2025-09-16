@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import AppBar from '@mui/material/AppBar'
-import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -10,52 +9,68 @@ import Link from '@mui/material/Link'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Toolbar from '@mui/material/Toolbar'
-import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 
 import MenuIcon from '@mui/icons-material/Menu'
 
 import logoImage from '@/shared/assets/static/images/logo.png'
-import ThemeToggle from '@/shared/components/ThemeToggle'
+import { useAuth } from '@/shared/providers/useAuth'
+import { getUserCommunity } from '@/api/community'
 
 const pages = ['Eventos', 'Comunidades']
-const settings = ['Logout']
 
 export default function Navbar() {
   const [anchorElNav, setAnchorElNav] = useState(null)
-  const [anchorElUser, setAnchorElUser] = useState(null)
+  const [userCommunity, setUserCommunity] = useState(null)
+  const { isAuthenticated, signOut, user } = useAuth()
 
-  // const [currentUser, setCurrentUser] = useState(null)
-  const [currentUser] = useState(null)
+  // Função para determinar a role principal do usuário
+  const getUserRole = () => {
+    if (!user || !user.roles || user.roles.length === 0) return null
+
+    // Prioridade: admin > community > user
+    if (user.roles.includes('admin')) return 'ADMIN'
+    if (user.roles.includes('community')) return 'COMMUNITY'
+    if (user.roles.includes('user')) return 'USER'
+
+    // Fallback para a primeira role encontrada
+    return user.roles[0].toUpperCase()
+  }
+
+  useEffect(() => {
+    const fetchUserCommunity = async () => {
+      if (isAuthenticated && user && user.roles && user.roles.includes('community')) {
+        try {
+          const community = await getUserCommunity()
+          setUserCommunity(community)
+        } catch (error) {
+          console.error('Erro ao buscar comunidade do usuário:', error)
+          setUserCommunity(null)
+        }
+      } else {
+        setUserCommunity(null)
+      }
+    }
+
+    fetchUserCommunity()
+  }, [isAuthenticated, user])
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget)
-  }
-
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget)
   }
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null)
   }
 
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null)
-  }
-
-  const handleLoginClick = () => {
-    /* Criar lógica de login
-    setCurrentUser('usuarioLogado')
-    window.location.change()
-    */
-  }
-
-  const handleCreateEvent = () => {
-    /* Criar lógica de login
-    setCurrentUser('event')
-    window.location.change()
-    */
+  const handleLoginClick = async () => {
+    if (isAuthenticated) {
+      // Se estiver logado, fazer logout
+      await signOut()
+    } else {
+      // Se não estiver logado, ir para login
+      window.location.href = '/login'
+    }
   }
 
   return (
@@ -137,23 +152,71 @@ export default function Navbar() {
                   md: 'none'
                 }
               }}>
-              {pages.map((page) => (
-                <MenuItem
-                  key={page}
-                  component='a'
-                  href={`/${page.toLowerCase()}`}
-                  onClick={handleCloseNavMenu}
-                  sx={{
-                    'textAlign': 'center',
-                    'color': 'text.main',
-                    '&:hover': {
-                      color: 'primary.main',
-                      backgroundColor: 'transparent'
-                    }
-                  }}>
-                  {page}
-                </MenuItem>
-              ))}
+              {[
+                ...pages.map((page) => (
+                  <MenuItem
+                    key={page}
+                    component='a'
+                    href={`/${page.toLowerCase()}`}
+                    onClick={handleCloseNavMenu}
+                    sx={{
+                      'textAlign': 'center',
+                      'color': 'text.main',
+                      '&:hover': {
+                        color: 'primary.main',
+                        backgroundColor: 'transparent'
+                      }
+                    }}>
+                    {page}
+                  </MenuItem>
+                )),
+                ...(isAuthenticated
+                  ? [
+                      ...(getUserRole()
+                        ? [
+                            <MenuItem
+                              key='user-role'
+                              onClick={handleCloseNavMenu}
+                              sx={{
+                                'textAlign': 'center',
+                                'color': 'gray',
+                                'fontWeight': '400',
+                                'fontSize': '0.75rem',
+                                'cursor': 'default',
+                                '&:hover': {
+                                  backgroundColor: 'transparent'
+                                }
+                              }}>
+                              {getUserRole()}
+                            </MenuItem>
+                          ]
+                        : []),
+                      ...(userCommunity
+                        ? [
+                            <MenuItem
+                              key='meu-perfil'
+                              component='a'
+                              href={`/meu-perfil/${userCommunity.id}`}
+                              onClick={handleCloseNavMenu}
+                              sx={{
+                                'textAlign': 'center',
+                                'color': '#FC692D',
+                                'fontWeight': '600',
+                                'display': 'flex',
+                                'alignItems': 'center',
+                                'gap': 1,
+                                '&:hover': {
+                                  color: 'primary.main',
+                                  backgroundColor: 'transparent'
+                                }
+                              }}>
+                              Meu Perfil
+                            </MenuItem>
+                          ]
+                        : [])
+                    ]
+                  : [])
+              ]}
             </Menu>
           </Box>
 
@@ -181,7 +244,7 @@ export default function Navbar() {
                     fontWeight: '700'
                   },
                   '&:hover': {
-                    color: 'primary.main'
+                    color: '#E55D2B'
                   }
                 }}>
                 {page}
@@ -194,70 +257,59 @@ export default function Navbar() {
               flexGrow: 0,
               paddingX: 0,
               display: 'flex',
-              alignItems: 'center'
+              alignItems: 'center',
+              gap: 1
             }}>
-            {!currentUser ? (
+            {!isAuthenticated ? (
               <Button
-                href='/login'
                 variant='contained'
                 onClick={handleLoginClick}>
                 Entrar
               </Button>
             ) : (
-              <Tooltip>
+              <>
+                {getUserRole() && (
+                  <Typography
+                    variant='caption'
+                    sx={{
+                      fontSize: '0.75rem',
+                      color: 'gray',
+                      fontWeight: 400,
+                      alignSelf: 'center'
+                    }}>
+                    {getUserRole()}
+                  </Typography>
+                )}
+                {userCommunity && (
+                  <Button
+                    variant='text'
+                    href={`/meu-perfil/${userCommunity.id}`}
+                    sx={{
+                      'color': '#FC692D',
+                      'fontWeight': '600',
+                      '&:hover': {
+                        backgroundColor: 'rgba(252, 105, 45, 0.1)'
+                      }
+                    }}>
+                    Meu Perfil
+                  </Button>
+                )}
                 <Button
-                  href='/login'
-                  onClick={handleCreateEvent}
+                  variant='outlined'
+                  onClick={handleLoginClick}
                   sx={{
-                    color: 'white',
-                    textWrap: 'nowrap',
-                    backgroundColor: '#FC692D',
-                    justifyContent: 'space-between'
+                    'color': '#FC692D',
+                    'borderColor': '#FC692D',
+                    '&:hover': {
+                      backgroundColor: '#E55D2B',
+                      borderColor: '#E55D2B',
+                      color: 'white'
+                    }
                   }}>
-                  Criar Evento
+                  Sair
                 </Button>
-                <IconButton
-                  id='logged'
-                  onClick={handleOpenUserMenu}
-                  sx={{
-                    p: 0,
-                    ml: '0.65rem'
-                  }}>
-                  <Avatar
-                    alt='Sharp'
-                    src='/static/images/avatar/2.png'
-                  />
-                </IconButton>
-              </Tooltip>
+              </>
             )}
-            <Menu
-              id='menu-appbar'
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right'
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right'
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-              sx={{
-                mt: '55px'
-              }}>
-              <MenuItem>
-                <ThemeToggle />
-              </MenuItem>
-              {settings.map((setting) => (
-                <MenuItem
-                  key={setting}
-                  onClick={handleCloseUserMenu}>
-                  <Typography textAlign='center'>{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
           </Box>
         </Toolbar>
       </Container>

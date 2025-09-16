@@ -8,10 +8,10 @@ import CardEventGroup from '@/shared/components/CardEvent/CardEventGroup'
 import FeaturedCardGroup from '@/shared/components/FeaturedCard/FeaturedCardGroup'
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { getEventos } from '../api/eventos'
-import { getComunidades } from '../api/comunidades'
 import CircularProgress from '@mui/material/CircularProgress'
 import Typography from '@mui/material/Typography'
+import { getCommunities } from '../api/community'
+import { getEvents } from '../api/event'
 
 export default function Home() {
   const [eventType, setEventType] = useState('todos')
@@ -22,7 +22,7 @@ export default function Home() {
     error: errorComunidades
   } = useQuery({
     queryKey: ['comunidades'],
-    queryFn: getComunidades
+    queryFn: getCommunities
   })
 
   const {
@@ -31,7 +31,7 @@ export default function Home() {
     error: errorEventos
   } = useQuery({
     queryKey: ['eventos'],
-    queryFn: getEventos
+    queryFn: getEvents
   })
 
   const isLoading = isLoadingComunidades || isLoadingEventos

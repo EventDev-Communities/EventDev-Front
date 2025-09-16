@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -14,15 +14,14 @@ import Typography from '@mui/material/Typography'
 
 import LogoPreviewCard from '@/shared/components/LogoPreviewCard'
 import UploadImg from '@/shared/components/UploadImg'
-import { createComunidade } from '@/api/comunidades'
 import Snackbar from '@mui/material/Snackbar'
+import { createCommunity } from '../api/community'
+import { AuthContext } from '../shared/providers/AuthContext'
 
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/
 
 const communitySchema = z.object({
   nomeComunidade: z.string().min(1, 'Nome da comunidade é obrigatório'),
-  email: z.string().email('E-mail inválido'),
-  senha: z.string().min(6, 'Mínimo de 6 caracteres'),
   descricao: z.string().optional(),
   telefone: z.string().optional(),
   website: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
@@ -39,6 +38,7 @@ export default function CommunityRegister() {
   const [showSuccessToast, setShowSuccessToast] = useState(false)
 
   const navigate = useNavigate()
+  const { isAuthenticated, user, loading } = useContext(AuthContext)
 
   const {
     register,
@@ -49,26 +49,130 @@ export default function CommunityRegister() {
     resolver: zodResolver(communitySchema)
   })
 
+  // Verificar se o usuário está logado e tem permissão
+  useEffect(() => {
+    console.warn('=== VERIFICAÇÃO INICIAL DE AUTENTICAÇÃO ===')
+    console.warn('loading:', loading)
+    console.warn('isAuthenticated:', isAuthenticated)
+    console.warn('user:', user)
+    console.warn('user.email:', user?.email)
+    console.warn('user.roles:', user?.roles)
+    console.warn('==========================================')
+
+    if (!loading) {
+      if (!isAuthenticated) {
+        console.error('❌ Usuário não está autenticado - redirecionando para login')
+        setSubmitError('Você precisa estar logado para cadastrar uma comunidade.')
+        setTimeout(() => navigate('/login'), 2000)
+        return
+      }
+
+      if (user && !user.roles?.includes('community')) {
+        console.error('❌ Usuário não tem role community:', user.roles, '- redirecionando para home')
+        setSubmitError('Apenas usuários de comunidade podem cadastrar comunidades.')
+        setTimeout(() => navigate('/'), 2000)
+        return
+      }
+
+      console.warn('✅ Usuário autorizado - pode acessar página de cadastro de comunidade')
+    }
+  }, [isAuthenticated, user, loading, navigate])
+
+  // Mostrar loading enquanto verifica autenticação
+  if (loading) {
+    return (
+      <Container
+        maxWidth='xl'
+        sx={{ display: 'flex', justifyContent: 'center', paddingTop: '4.5rem' }}>
+        <CircularProgress />
+      </Container>
+    )
+  }
+
+  // Não renderizar o formulário se não estiver autenticado
+  if (!isAuthenticated || (user && !user.roles?.includes('community'))) {
+    return (
+      <Container maxWidth='xl'>
+        <Box sx={{ paddingTop: '4.5rem', marginTop: '2rem', textAlign: 'center' }}>
+          <Alert
+            severity='warning'
+            sx={{ maxWidth: 600, margin: '0 auto' }}>
+            {!isAuthenticated
+              ? 'Você precisa estar logado para cadastrar uma comunidade.'
+              : 'Apenas usuários de comunidade podem cadastrar comunidades.'}
+          </Alert>
+        </Box>
+      </Container>
+    )
+  }
+
   const onSubmit = async (data) => {
     setIsSubmitting(true)
     setSubmitError('')
     setSubmitSuccess(false)
 
     try {
+      // Logs detalhados para debug
+      console.warn('=== DEBUG INFORMAÇÕES DO USUÁRIO ===')
+      console.warn('isAuthenticated:', isAuthenticated)
+      console.warn('user completo:', user)
+      console.warn('user.email:', user?.email)
+      console.warn('user.roles:', user?.roles)
+      console.warn('user.id:', user?.id)
+      console.warn('====================================')
+
+      // Verificar se ainda está logado antes de submeter
+      if (!isAuthenticated) {
+        console.error('❌ Usuário não está autenticado')
+        setSubmitError('Sessão expirada. Faça login novamente.')
+        navigate('/login')
+        return
+      }
+
+      if (!user) {
+        console.error('❌ Dados do usuário não encontrados')
+        setSubmitError('Erro ao carregar dados do usuário. Tente fazer login novamente.')
+        navigate('/login')
+        return
+      }
+
+      if (!user.roles?.includes('community')) {
+        console.error('❌ Usuário não tem role community:', user.roles)
+        setSubmitError('Apenas usuários de comunidade podem cadastrar comunidades.')
+        return
+      }
+
+      console.warn('✅ Usuário autorizado a criar comunidade')
+
       const dadosComunidade = {
         nome: data.nomeComunidade,
-        email: data.email,
-        senha: data.senha,
         descricao: data.descricao || '',
         telefone: data.telefone || '',
         link_website: data.website || '',
         link_instagram: data.instagram || '',
         link_linkedin: data.linkedin || '',
-        link_github: data.github || '',
-        logo_url: uploadedImage || ''
+        link_github: data.github || ''
       }
 
-      const comunidadeCriada = await createComunidade(dadosComunidade)
+      console.warn('uploadedImage:', uploadedImage, 'tipo:', typeof uploadedImage)
+
+      // Adiciona logo_url se houver uma imagem válida
+      if (uploadedImage) {
+        // Se for um objeto (upload de arquivo), use a URL gerada
+        if (typeof uploadedImage === 'object' && uploadedImage.url) {
+          dadosComunidade.logo_url = uploadedImage.url
+          console.warn('logo_url adicionado (objeto):', uploadedImage.url)
+        }
+        // Se for uma string (URL direta), use diretamente
+        else if (typeof uploadedImage === 'string' && uploadedImage.trim() !== '') {
+          dadosComunidade.logo_url = uploadedImage
+          console.warn('logo_url adicionado (string):', uploadedImage)
+        }
+      }
+
+      console.warn('Chamando createCommunity com:', dadosComunidade)
+      const comunidadeCriada = await createCommunity(dadosComunidade)
+      console.warn('Comunidade criada:', comunidadeCriada)
 
       setSubmitSuccess(true)
       setShowSuccessToast(true)
@@ -76,17 +180,36 @@ export default function CommunityRegister() {
       setUploadedImage(null)
 
       setTimeout(() => {
-        navigate(`/meu-perfil/${comunidadeCriada.slug}`)
+        navigate(`/meu-perfil/${comunidadeCriada.slug || comunidadeCriada.id}`)
       }, 2000)
-    } catch {
-      setSubmitError('Erro ao cadastrar comunidade. Tente novamente.')
+    } catch (error) {
+      console.error('Erro capturado:', error)
+
+      // Verificar se é erro de autenticação
+      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        setSubmitError('Sessão expirada. Faça login novamente.')
+        navigate('/login')
+      } else {
+        setSubmitError('Erro ao cadastrar comunidade. Tente novamente.')
+      }
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const handleImageUpload = (imageData) => {
-    setUploadedImage(imageData)
+    if (imageData) {
+      // Se for um objeto (upload de arquivo), use a URL gerada
+      if (typeof imageData === 'object' && imageData.url) {
+        setUploadedImage(imageData.url)
+      }
+      // Se for uma string (URL direta), use diretamente
+      else if (typeof imageData === 'string') {
+        setUploadedImage(imageData)
+      }
+    } else {
+      setUploadedImage(null)
+    }
   }
 
   return (
@@ -102,7 +225,8 @@ export default function CommunityRegister() {
           variant='body1'
           component='p'
           sx={{ color: '#64748B', marginTop: '1rem' }}>
-          Cadastre sua comunidade para poder compartilhar seus eventos com o público
+          Cadastre sua comunidade para poder compartilhar seus eventos com o público. Você precisa estar logado como usuário de comunidade para
+          cadastrar uma nova comunidade.
         </Typography>
       </Box>
 
@@ -167,66 +291,6 @@ export default function CommunityRegister() {
               sx={{ marginTop: '0.5rem', color: 'text.secondary' }}>
               Nome pelo qual sua comunidade é conhecida.
             </Typography>
-          </Box>
-
-          <Box sx={{ display: 'flex', gap: '2rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-            <Box sx={{ flex: 1, minWidth: 200 }}>
-              <Typography
-                component='label'
-                htmlFor='email'
-                variant='subtitle1'
-                fontWeight='bold'
-                sx={{ marginBottom: '0.5rem', display: 'block' }}>
-                E-mail
-              </Typography>
-
-              <TextField
-                required
-                id='email'
-                placeholder='ex: contato@comunidade.dev'
-                autoComplete='email'
-                type='email'
-                {...register('email')}
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                sx={{ width: '100%' }}
-              />
-
-              <Typography
-                variant='caption'
-                sx={{ marginTop: '0.5rem', color: 'text.secondary' }}>
-                Email para login e contato
-              </Typography>
-            </Box>
-
-            <Box sx={{ flex: 1, minWidth: 200 }}>
-              <Typography
-                component='label'
-                htmlFor='senha'
-                variant='subtitle1'
-                fontWeight='bold'
-                sx={{ marginBottom: '0.5rem', display: 'block' }}>
-                Senha
-              </Typography>
-
-              <TextField
-                required
-                id='senha'
-                type='password'
-                placeholder='********'
-                autoComplete='current-password'
-                {...register('senha')}
-                error={!!errors.senha}
-                helperText={errors.senha?.message}
-                sx={{ width: '100%' }}
-              />
-
-              <Typography
-                variant='caption'
-                sx={{ marginTop: '0.5rem', color: 'text.secondary' }}>
-                Mínimo de 6 caracteres
-              </Typography>
-            </Box>
           </Box>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>

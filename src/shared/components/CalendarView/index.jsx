@@ -7,7 +7,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import Box from '@mui/material/Box'
 import DynamicCalendar from '@/shared/components/DynamicCalendar'
 import SelectedDatePanel from '@/shared/components/SelectDatePanel'
-import { getEventos } from '@/api/eventos'
+import { getEvents } from '../../../api/event'
 
 dayjs.locale('pt-br')
 
@@ -17,10 +17,10 @@ export default function CalendarView({ eventType = 'todos' }) {
   const [highlightedDays, setHighlightedDays] = useState([])
 
   // Função utilitária para comparar modalidade
-  const modalidadeMatch = (evento, tipo) => tipo === 'todos' || evento.modalidade === tipo
+  const modalityMatch = (event, type) => type === 'todos' || event.modality === type
 
   useEffect(() => {
-    getEventos().then(setEventos)
+    getEvents().then(setEventos)
   }, [])
 
   // Atualiza os dias destacados ao mudar mês/ano ou filtro
@@ -29,11 +29,11 @@ export default function CalendarView({ eventType = 'todos' }) {
       const diasComEvento = eventos
         .filter(
           (evento) =>
-            dayjs(evento.data_hora_inicial).month() === dayjs(newDate).month() &&
-            dayjs(evento.data_hora_inicial).year() === dayjs(newDate).year() &&
-            modalidadeMatch(evento, eventType)
+            dayjs(evento.start_date_time).month() === dayjs(newDate).month() &&
+            dayjs(evento.start_date_time).year() === dayjs(newDate).year() &&
+            modalityMatch(evento, eventType)
         )
-        .map((evento) => dayjs(evento.data_hora_inicial).date())
+        .map((evento) => dayjs(evento.start_date_time).date())
       setHighlightedDays([...new Set(diasComEvento)])
     },
     [eventos, eventType]
@@ -44,7 +44,7 @@ export default function CalendarView({ eventType = 'todos' }) {
   }, [selectedDate, eventos, eventType, handleMonthChange])
 
   // Filtra eventos do dia selecionado e pelo tipo
-  const eventosDoDia = eventos.filter((evento) => dayjs(evento.data_hora_inicial).isSame(selectedDate, 'day') && modalidadeMatch(evento, eventType))
+  const eventosDoDia = eventos.filter((evento) => dayjs(evento.start_date_time).isSame(selectedDate, 'day') && modalityMatch(evento, eventType))
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>

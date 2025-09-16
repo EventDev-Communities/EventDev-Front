@@ -1,0 +1,68 @@
+FROM node:22-alpine AS base
+WORKDIR /app
+
+ARG NODE_ENV
+ENV NODE_ENV=${NODE_ENV}
+
+RUN addgroup -g 1001 -S nodejs && adduser -S reactjs -u 1001 -G nodejs
+RUN chown -R reactjs:nodejs /app && chmod -R 755 /app
+
+RUN apk add --no-cache curl libc6-compat git
+
+
+FROM base AS deps
+
+RUN corepack enable
+RUN corepack prepare pnpm@latest --activate
+
+COPY package*.json pnpm-lock.yaml* ./
+RUN chown -R reactjs:nodejs /app
+USER reactjs
+
+RUN pnpm install --frozen-lockfile
+
+
+FROM base AS prod-deps
+
+RUN corepack enable
+RUN corepack prepare pnpm@latest --activate
+
+COPY package*.json pnpm-lock.yaml* ./
+RUN chown -R reactjs:nodejs /app
+USER reactjs
+
+RUN pnpm install --frozen-lockfile --prod
+
+
+FROM base AS builder
+
+RUN corepack enable
+RUN corepack prepare pnpm@latest --activate
+
+COPY --from=deps --chown=reactjs:nodejs /app/node_modules ./node_modules
+COPY . .
+
+RUN chown -R reactjs:nodejs /app
+
+USER reactjs
+RUN pnpm run build
+
+
+FROM base AS app
+
+RUN corepack enable
+RUN corepack prepare pnpm@latest --activate
+
+COPY --from=builder --chown=reactjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=reactjs:nodejs /app/package.json ./package.json
+
+USER reactjs
+EXPOSE 5173
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:5173 || exit 1
+
+CMD ["sh", "-c", "\
+  echo 'Starting preview server...' && \
+  exec pnpm preview --host 0.0.0.0 --port 5173 \
+  "]
