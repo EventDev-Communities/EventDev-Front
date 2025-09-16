@@ -20,7 +20,7 @@ import { useState } from 'react'
 export default function CardEvent({ evento, isOwner = false, onEdit, onDelete }) {
   const [confirmOpen, setConfirmOpen] = useState(false)
 
-  if (!evento || !evento.comunidade) return null
+  if (!evento || !evento.community) return null
 
   const handleDeleteClick = () => {
     setConfirmOpen(true)
@@ -35,34 +35,38 @@ export default function CardEvent({ evento, isOwner = false, onEdit, onDelete })
     setConfirmOpen(false)
   }
 
-  const endereco = evento.endereco
-  const enderecoString = endereco
-    ? `${endereco.rua || ''}${endereco.numero ? `, ${endereco.numero}` : ''}${endereco.bairro ? ` - ${endereco.bairro}` : ''}${endereco.cidade ? `, ${endereco.cidade}` : ''}${endereco.estado ? ` - ${endereco.estado}` : ''}${endereco.cep ? ` (${endereco.cep})` : ''}`
-    : evento.modalidade === 'online'
-      ? 'Evento online'
-      : 'Endereço não informado'
+  const enderecoString = (() => {
+    if (evento.modality === 'ONLINE') return 'Evento online'
+
+    if (evento.address) {
+      const { streetAddress, number, neighborhood, city, state, cep } = evento.address
+      return `${streetAddress || ''}${number ? `, ${number}` : ''}${neighborhood ? ` - ${neighborhood}` : ''}${city ? `, ${city}` : ''}${state ? ` - ${state}` : ''}${cep ? ` (${cep})` : ''}`
+    }
+
+    return 'Endereço não informado'
+  })()
 
   return (
     <Card sx={{ boxSizing: 'border-box', borderRadius: 2, width: '100%' }}>
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, padding: 1 }}>
           <Avatar
-            alt={`Logo ${evento.comunidade.nome}`}
-            src={evento.comunidade.logo_url}
+            alt={`Logo ${evento.community.name}`}
+            src={evento.community.logo_url}
           />
           <Typography
             gutterBottom
             variant='h5'
             sx={{ margin: 0 }}
             component='div'>
-            {evento.comunidade.nome}
+            {evento.community.name}
           </Typography>
         </Box>
         <Box sx={{ position: 'relative', width: '100%', height: '320px', margin: 'auto' }}>
           <CardMedia
             component='img'
             image={evento.capa_url}
-            alt={`Capa do evento ${evento.titulo}`}
+            alt={`Capa do evento ${evento.title}`}
             sx={{
               width: '100%',
               height: '320px',
@@ -95,12 +99,12 @@ export default function CardEvent({ evento, isOwner = false, onEdit, onDelete })
             component='div'
             color='black'
             sx={{ paddingY: 0.2, textAlign: 'center', fontSize: '18px' }}>
-            {evento.titulo}
+            {evento.title}
           </Typography>
           <Typography
             variant='body2'
             sx={{ color: 'text.secondary', borderTop: '1px solid #e0e0e0', marginTop: 1, py: 2 }}>
-            {evento.descricao}
+            {evento.description}
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -108,7 +112,7 @@ export default function CardEvent({ evento, isOwner = false, onEdit, onDelete })
               <Typography
                 variant='body2'
                 sx={{ color: '#64748B' }}>
-                {evento.data_Hora_inicial}
+                {evento.startDate}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

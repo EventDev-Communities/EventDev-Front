@@ -18,8 +18,8 @@ import Alert from '@mui/material/Alert'
 
 import TipCard from '@/shared/components/TipCard'
 import BannerImg from '@/shared/components/UploadBanner'
-import { getEventos, updateEvento } from '@/api/eventos'
-import { createEndereco, getEnderecoByCep, updateEndereco } from '@/api/endereco'
+import { getEvents, updateEvent } from '@/api/event'
+import { createEndereco, getEnderecoByCep, updateEndereco } from '@/api/address'
 
 const today = new Date().toISOString().split('T')[0]
 
@@ -30,7 +30,7 @@ const eventSchema = z
     data: z.string().refine((val) => val >= today, { message: 'A data não pode ser anterior a hoje' }),
     horarioInicial: z.string().min(1, 'Horário inicial obrigatório'),
     horarioFinal: z.string().min(1, 'Horário final obrigatório'),
-    modalidade: z.enum(['presencial', 'online', 'hibrido'], {
+    modalidade: z.enum(['presential', 'online', 'hybrid'], {
       required_error: 'Selecione a modalidade do evento',
       invalid_type_error: 'Selecione a modalidade do evento'
     }),
@@ -100,7 +100,7 @@ export default function EditEvent() {
   useEffect(() => {
     async function fetchEvento() {
       try {
-        const eventos = await getEventos()
+        const eventos = await getEvents()
         const eventoEncontrado = eventos.find((e) => String(e.id) === String(eventoId))
         if (!eventoEncontrado) {
           setSubmitError('Evento não encontrado')
@@ -192,7 +192,7 @@ export default function EditEvent() {
         atualizado_em: new Date().toISOString()
       }
 
-      await updateEvento(eventoId, eventoAtualizado)
+      await updateEvent(eventoId, eventoAtualizado)
       setShowSuccessToast(true)
       setTimeout(() => {
         navigate(`/meu-perfil/${evento?.comunidade?.slug}`)
@@ -404,9 +404,9 @@ export default function EditEvent() {
                         labelId='modalidade-label'
                         id='modalidade'
                         label='Modalidade do Evento'>
-                        <MenuItem value='presencial'>Presencial</MenuItem>
+                        <MenuItem value='presential'>Presencial</MenuItem>
                         <MenuItem value='online'>Online</MenuItem>
-                        <MenuItem value='hibrido'>Híbrido</MenuItem>
+                        <MenuItem value='hybrid'>Híbrido</MenuItem>
                       </Select>
                     )}
                   />
