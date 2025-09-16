@@ -13,8 +13,8 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import LinkIcon from '@mui/icons-material/Link'
 import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined'
 
-import { getEventos } from '@/api/eventos'
 import Chip from '@mui/material/Chip'
+import { getEvents } from '../../../../api/event'
 
 export default function CardEventHorizontal({ eventos: eventosProp, selectedDate }) {
   const [eventos, setEventos] = useState([])
@@ -28,7 +28,7 @@ export default function CardEventHorizontal({ eventos: eventosProp, selectedDate
         return
       }
       try {
-        const eventosData = await getEventos()
+        const eventosData = await getEvents()
         if (selectedDate) {
           // Filtra eventos do dia selecionado
           const eventosDoDia = eventosData.filter(
@@ -129,9 +129,9 @@ export default function CardEventHorizontal({ eventos: eventosProp, selectedDate
                     label={
                       evento.modalidade === 'online'
                         ? 'Online'
-                        : evento.modalidade === 'presencial'
+                        : evento.modalidade === 'presential'
                           ? 'Presencial'
-                          : evento.modalidade === 'híbrido'
+                          : evento.modalidade === 'hybrid'
                             ? 'Híbrido'
                             : ''
                     }
@@ -172,7 +172,7 @@ export default function CardEventHorizontal({ eventos: eventosProp, selectedDate
                     <Typography
                       variant='body2'
                       sx={{ color: '#64748B' }}>
-                      {['presencial', 'híbrido'].includes(evento.modalidade) &&
+                      {['presential', 'hybrid'].includes(evento.modalidade) &&
                         (!evento.endereco ? 'Endereço Pendente' : `${evento.endereco.rua}, ${evento.endereco.numero} - ${evento.endereco.bairro}`)}
                     </Typography>
                   </Box>

@@ -18,8 +18,8 @@ import Alert from '@mui/material/Alert'
 
 import TipCard from '@/shared/components/TipCard'
 import BannerImg from '@/shared/components/UploadBanner'
-import { createEvento } from '@/api/eventos'
-import { getEnderecoByCep, createEndereco } from '@/api/endereco'
+import { createEvent } from '@/api/event'
+import { getEnderecoByCep } from '@/api/address'
 
 const today = new Date().toISOString().split('T')[0]
 
@@ -30,7 +30,7 @@ const eventSchema = z
     data: z.string().refine((val) => val >= today, { message: 'A data não pode ser anterior a hoje' }),
     horarioInicial: z.string().min(1, 'Horário inicial obrigatório'),
     horarioFinal: z.string().min(1, 'Horário final obrigatório'),
-    modalidade: z.enum(['presencial', 'online', 'hibrido'], {
+    modalidade: z.enum(['presential', 'online', 'hybrid'], {
       required_error: 'Selecione a modalidade do evento',
       invalid_type_error: 'Selecione a modalidade do evento'
     }),
@@ -123,53 +123,42 @@ export default function CreateEvent() {
     setIsSubmitting(true)
     setSubmitError('')
 
-    console.log('Form data submitted:', data) // Para debug
-
     try {
-      // Primeiro, criar o endereço se necessário
-      let enderecoId = null
-      if (data.modalidade !== 'online') {
-        const enderecoData = {
-          cep: data.cep || '',
-          rua: data.rua || '',
-          numero: data.numero || '',
-          bairro: data.bairro || '',
-          cidade: data.cidade || '',
-          estado: data.estado || ''
-        }
-
-        // Criar o endereço usando a API
-        const enderecoResponse = await createEndereco(enderecoData)
-        enderecoId = enderecoResponse.id
-      }
+      const startDateTime = `${data.data}T${data.horarioInicial}:00`
+      const endDateTime = `${data.data}T${data.horarioFinal}:00`
 
       const novoEvento = {
-        titulo: data.nomeEvento,
-        descricao: data.descricaoEvento,
-        data_hora_inicial: `${data.data}T${data.horarioInicial}:00`,
-        data_hora_final: `${data.data}T${data.horarioFinal}:00`,
-        modalidade: data.modalidade,
-        id_comunidade: parseInt(comunidadeId),
-        id_endereco: enderecoId,
-        capa_url: '',
-        link: data.link || '',
-        evento: true,
-        ativo: true,
-        criado_em: new Date().toISOString(),
-        atualizado_em: new Date().toISOString()
+        title: data.nomeEvento,
+        description: data.descricaoEvento,
+        start_date_time: startDateTime,
+        end_date_time: endDateTime,
+        modality: data.modalidade.toUpperCase(),
+        link: data.link || null,
+        capa_url: null,
+        is_active: true,
+        ...(data.modalidade !== 'online' && {
+          address: {
+            cep: data.cep?.replace(/\D/g, '') || '',
+            state: data.estado || '',
+            city: data.cidade || '',
+            neighborhood: data.bairro || '',
+            streetAddress: data.rua || '',
+            number: data.numero || ''
+          }
+        })
       }
 
-      console.log('Evento to create:', novoEvento) // Para debug
+      console.log('Dados do evento antes do envio:', novoEvento)
 
-      await createEvento(novoEvento)
+      await createEvent(comunidadeId, novoEvento)
       setShowSuccessToast(true)
       reset()
       setTimeout(() => {
-        navigate('/eventos')
+        navigate(`/meu-perfil/${comunidadeId}`)
       }, 2000)
     } catch (err) {
       console.error('Erro ao criar evento:', err)
-      setSubmitError('Erro ao criar evento. Tente novamente.')
+      setSubmitError(err.message || 'Erro ao criar evento. Tente novamente.')
     } finally {
       setIsSubmitting(false)
     }
@@ -365,9 +354,9 @@ export default function CreateEvent() {
                         labelId='modalidade-label'
                         id='modalidade'
                         label='Modalidade do Evento'>
-                        <MenuItem value='presencial'>Presencial</MenuItem>
+                        <MenuItem value='presential'>Presencial</MenuItem>
                         <MenuItem value='online'>Online</MenuItem>
-                        <MenuItem value='hibrido'>Híbrido</MenuItem>
+                        <MenuItem value='hybrid'>Híbrido</MenuItem>
                       </Select>
                     )}
                   />
@@ -427,7 +416,7 @@ export default function CreateEvent() {
                   </Typography>
                   <TextField
                     id='cep'
-                    placeholder='Digite o CEP'
+                    placeholder='Digite apenas números'
                     {...register('cep')}
                     error={!!errors.cep || !!cepError}
                     helperText={errors.cep?.message || cepError}

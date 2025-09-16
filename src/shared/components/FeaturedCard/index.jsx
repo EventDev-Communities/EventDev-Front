@@ -6,9 +6,11 @@ import CardActionArea from '@mui/material/CardActionArea'
 import Link from '@mui/material/Link'
 import Box from '@mui/material/Box'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../providers/useAuth'
 
 export default function FeaturedCard({ comunidade }) {
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const getInitials = (name) => {
     if (!name) return '?'
@@ -26,7 +28,11 @@ export default function FeaturedCard({ comunidade }) {
   const handleLinkClick = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    navigate(`/perfil-comunidade/${comunidade.slug}`)
+    if (user?.communityId === comunidade.id) {
+      navigate(`/meu-perfil/${comunidade.id}`)
+    } else {
+      navigate(`/perfil-comunidade/${comunidade.id}`)
+    }
   }
 
   return (
@@ -52,7 +58,7 @@ export default function FeaturedCard({ comunidade }) {
           <CardMedia
             component='img'
             image={comunidade.logo_url}
-            alt={`Logo da comunidade ${comunidade.nome}`}
+            alt={`Logo da comunidade ${comunidade.name}`}
             sx={{
               height: '100px',
               width: '100px',
@@ -83,7 +89,7 @@ export default function FeaturedCard({ comunidade }) {
                 fontSize: '2rem',
                 lineHeight: 1
               }}>
-              {getInitials(comunidade.nome)}
+              {getInitials(comunidade.name)}
             </Typography>
           </Box>
         )}
@@ -92,7 +98,7 @@ export default function FeaturedCard({ comunidade }) {
           <Typography
             variant='h5'
             paddingBottom='20px'>
-            {comunidade.nome}
+            {comunidade.name}
           </Typography>
 
           <Typography
@@ -105,7 +111,7 @@ export default function FeaturedCard({ comunidade }) {
               overflow: 'hidden',
               textOverflow: 'ellipsis'
             }}>
-            {comunidade.descricao}
+            {comunidade.description}
           </Typography>
         </CardContent>
 
@@ -113,7 +119,7 @@ export default function FeaturedCard({ comunidade }) {
           fontWeight={700}
           underline='hover'
           variant='caption'
-          href={`/perfil-comunidade/${comunidade.slug}`}
+          href={`/perfil-comunidade/${comunidade.id}`}
           onClick={handleLinkClick}
           sx={{ marginTop: 'auto' }}>
           Ver perfil

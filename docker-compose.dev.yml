@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .docker/node/Dockerfile.dev
+      args:
+        - NODE_ENV=development
+    container_name: app-dev
+    env_file:
+      - .env
+    restart: unless-stopped
+    ports:
+      - '${NODE_PORT:-5173}:${NODE_PORT:-5173}'
+    environment:
+      - NODE_ENV=development
+      - NODE_PORT=${NODE_PORT:-5173}
+      - VITE_API_URL=${VITE_API_URL}
+      - VITE_APP_NAME=${VITE_APP_NAME}
+      - VITE_ENABLE_DEVTOOLS=${VITE_ENABLE_DEVTOOLS}
+      - VITE_ENABLE_MOCK_API=${VITE_ENABLE_MOCK_API}
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=1000
+    volumes:
+      - ./:/app/
+      - /app/node_modules
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:${NODE_PORT:-5173}']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - eventdev-dev-network
+
+networks:
+  eventdev-dev-network:
+    external: true

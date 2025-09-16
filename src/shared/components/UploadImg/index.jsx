@@ -53,10 +53,7 @@ export default function UploadImg({ onImageUpload }) {
 
       if (url && !error) {
         setFileName(null)
-        onImageUpload({
-          url: url,
-          name: url
-        })
+        onImageUpload(url) // Passa apenas a URL string
       } else if (!url) {
         onImageUpload(null)
       }

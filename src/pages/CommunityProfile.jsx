@@ -6,8 +6,8 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import CircularProgress from '@mui/material/CircularProgress'
-import Alert from '@mui/material/Alert'
 import Snackbar from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
 
 import EditIcon from '@mui/icons-material/Edit'
 import AddIcon from '@mui/icons-material/Add'
@@ -16,14 +16,14 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import AboutCommunity from '@/shared/components/AboutCommunity'
 import CardEvent from '@/shared/components/CardEvent'
 import CommunityProfilePicture from '@/shared/components/CommunityProfilePicture'
-import ToogleCommunityProfile from '@/shared/components/ToggleCommunityProfile'
+import ToggleCommunityProfile from '@/shared/components/ToggleCommunityProfile'
 import DeleteCommunityDialog from '@/shared/components/DeleteCommunityDialog'
 
-import { getComunidadeBySlug, deleteComunidade } from '@/api/comunidades'
-import { deleteEvento, getEventos } from '@/api/eventos'
+import { deleteEvent, getEvents } from '@/api/event'
+import { deleteCommunity, getCommunityById } from '../api/community'
 
 export default function CommunityProfile({ isOwner = false }) {
-  const { communitySlug } = useParams()
+  const { communityId } = useParams()
   const [eventType, setEventType] = useState('eventos')
   const [comunidade, setComunidade] = useState(null)
   const [eventosDaComunidade, setEventosDaComunidade] = useState([])
@@ -37,21 +37,26 @@ export default function CommunityProfile({ isOwner = false }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const comunidadeData = await getComunidadeBySlug(communitySlug)
+        const comunidadeData = await getCommunityById(communityId)
+
         setComunidade(comunidadeData)
 
-        const allEventos = await getEventos()
-        const eventosDaComunidade = allEventos.filter((evento) => evento.comunidade && evento.comunidade.id === comunidadeData.id)
+        const allEventos = await getEvents()
+
+        const eventosDaComunidade = allEventos.filter((evento) => {
+          return evento.id_community === comunidadeData.id
+        })
         setEventosDaComunidade(eventosDaComunidade)
       } catch (error) {
         console.error('Erro ao buscar comunidade e eventos:', error)
+        setToast({ open: true, message: 'Erro ao carregar comunidade e eventos.', severity: 'error' })
       } finally {
         setLoading(false)
       }
     }
 
     fetchData()
-  }, [communitySlug])
+  }, [communityId])
 
   const handleEditCommunity = () => {
     if (comunidade?.id) {
@@ -60,73 +65,46 @@ export default function CommunityProfile({ isOwner = false }) {
   }
 
   const handleCreateEvent = () => {
-    navigate(`/criacao-de-eventos/${comunidade.id}`)
+    if (comunidade?.id) {
+      navigate(`/criacao-de-eventos/${comunidade.id}`)
+    }
   }
 
   const handleDeleteCommunity = async () => {
     setIsDeleting(true)
 
     try {
-      await deleteComunidade(comunidade.id)
-
-      setToast({
-        open: true,
-        message: 'Comunidade excluída com sucesso!',
-        severity: 'success'
-      })
-
-      setTimeout(() => {
-        navigate('/comunidades')
-      }, 2000)
+      await deleteCommunity(comunidade.id)
+      setToast({ open: true, message: 'Comunidade excluída com sucesso!', severity: 'success' })
+      setTimeout(() => navigate('/comunidades'), 2000)
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
-      setToast({
-        open: true,
-        message: 'Erro ao excluir comunidade. Tente novamente.',
-        error,
-        severity: 'error'
-      })
+      setToast({ open: true, message: 'Erro ao excluir comunidade. Tente novamente.', severity: 'error' })
     } finally {
       setIsDeleting(false)
       setDeleteDialogOpen(false)
     }
   }
 
-  const handleCloseToast = () => {
-    setToast({ ...toast, open: false })
+  const handleDeleteEvento = async (eventoId) => {
+    try {
+      await deleteEvent(eventoId)
+      setEventosDaComunidade((prev) => prev.filter((evento) => evento.id !== eventoId))
+      setToast({ open: true, message: 'Evento excluído com sucesso!', severity: 'success' })
+      // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      setToast({ open: true, message: 'Erro ao excluir evento. Tente novamente.', severity: 'error' })
+    }
   }
+
+  const handleCloseToast = () => setToast({ ...toast, open: false })
 
   if (loading) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          backgroundColor: 'white'
-        }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'white' }}>
         <CircularProgress sx={{ color: 'primary.main' }} />
       </Box>
     )
-  }
-
-  const handleDeleteEvento = async (eventoId) => {
-    try {
-      await deleteEvento(eventoId)
-      setEventosDaComunidade((prev) => prev.filter((evento) => evento.id !== eventoId))
-      setToast({
-        open: true,
-        message: 'Evento excluído com sucesso!',
-        severity: 'success'
-      })
-    } catch (error) {
-      setToast({
-        open: true,
-        message: 'Erro ao excluir evento. Tente novamente.',
-        error,
-        severity: 'error'
-      })
-    }
   }
 
   if (!comunidade) {
@@ -138,10 +116,11 @@ export default function CommunityProfile({ isOwner = false }) {
   }
 
   const filteredEventos = eventosDaComunidade.filter((evento) => {
+    const modalidade = (evento.modality || '').toLowerCase()
     if (eventType === 'todos' || eventType === 'eventos') return true
-    if (eventType === 'online') return evento.modalidade === 'online'
-    if (eventType === 'presencial') return evento.modalidade === 'presencial'
-    if (eventType === 'híbrido') return evento.modalidade === 'híbrido'
+    if (eventType === 'online') return modalidade === 'online'
+    if (eventType === 'presencial') return modalidade === 'presential'
+    if (eventType === 'híbrido') return modalidade === 'hybrid'
     return true
   })
 
@@ -156,22 +135,9 @@ export default function CommunityProfile({ isOwner = false }) {
           <ButtonGroup
             sx={{
               'borderRadius': '8px',
-              '& .MuiButton-root': {
-                px: 3,
-                py: 1,
-                fontWeight: 500,
-                fontSize: '12px',
-                textTransform: 'none',
-                minHeight: '40px'
-              },
-              '& .MuiButton-root:first-of-type': {
-                borderTopRightRadius: 0,
-                borderBottomRightRadius: 0
-              },
-              '& .MuiButton-root:last-of-type': {
-                borderTopLeftRadius: 0,
-                borderBottomLeftRadius: 0
-              }
+              '& .MuiButton-root': { px: 3, py: 1, fontWeight: 500, fontSize: '12px', textTransform: 'none', minHeight: '40px' },
+              '& .MuiButton-root:first-of-type': { borderTopRightRadius: 0, borderBottomRightRadius: 0 },
+              '& .MuiButton-root:last-of-type': { borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }
             }}>
             <Button
               variant='outlined'
@@ -189,7 +155,7 @@ export default function CommunityProfile({ isOwner = false }) {
         </Box>
       )}
 
-      <ToogleCommunityProfile
+      <ToggleCommunityProfile
         value={eventType}
         onChange={setEventType}
       />
@@ -262,7 +228,7 @@ export default function CommunityProfile({ isOwner = false }) {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteCommunity}
-        communityName={comunidade?.nome}
+        communityName={comunidade?.name}
         isDeleting={isDeleting}
       />
 

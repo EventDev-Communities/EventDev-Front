@@ -32,7 +32,7 @@
 
 ## Component Structure
 
-```
+```bash
 @/shared/components/ComponentName/
 ├── index.jsx
 └── ComponentName.module.css (if needed)
@@ -47,7 +47,7 @@
 
 ### Folder Structure
 
-```
+```bash
 src/
 ├── App.jsx
 ├── main.jsx

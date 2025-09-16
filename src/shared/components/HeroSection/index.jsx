@@ -3,8 +3,13 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
+import { useAuth } from '../../providers/useAuth'
 
 export default function HeroSection() {
+  const { isAuthenticated, user } = useAuth()
+  const isCommunityUser = user?.roles?.includes('community')
+  const comunidadeId = user?.communityId
+
   return (
     <Box
       sx={{
@@ -17,7 +22,6 @@ export default function HeroSection() {
         <Box
           sx={{
             display: 'flex',
-
             justifyContent: 'space-between',
             alignItems: 'center',
             flexDirection: { xs: 'column', md: 'row' }
@@ -69,18 +73,20 @@ export default function HeroSection() {
                 Explorar Eventos
               </Button>
 
-              <Button
-                href='/criacao-de-eventos'
-                variant='contained'
-                color='secondary'
-                size='large'
-                sx={{
-                  fontWeight: '700',
-                  height: { xs: 60, md: 'auto' },
-                  width: { xs: '100%', md: 'auto' }
-                }}>
-                Criar Eventos
-              </Button>
+              {isAuthenticated && isCommunityUser && comunidadeId && (
+                <Button
+                  href={`/criacao-de-eventos/${comunidadeId}`}
+                  variant='contained'
+                  color='secondary'
+                  size='large'
+                  sx={{
+                    fontWeight: '700',
+                    height: { xs: 60, md: 'auto' },
+                    width: { xs: '100%', md: 'auto' }
+                  }}>
+                  Criar Eventos
+                </Button>
+              )}
             </Box>
           </Box>
 

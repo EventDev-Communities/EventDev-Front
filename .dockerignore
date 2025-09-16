@@ -1,0 +1,57 @@
+# Desnecessários para build
+node_modules
+dist
+.git
+.gitignore
+Dockerfile*
+docker-compose*.yml
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs e arquivos temporários
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.tmp
+.temp
+*.tmp
+*.temp
+
+# Build e coverage
+build
+coverage
+.nyc_output
+.cache
+.eslintcache
+
+# Arquivos do sistema e IDE
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+*.swp
+*.swo
+
+# Documentação e testes
+README.md
+docs/
+test/
+
+# Backup files
+*.backup
+*.bak
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Vite specific
+.vite

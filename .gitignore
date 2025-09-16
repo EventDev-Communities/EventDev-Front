@@ -22,6 +22,8 @@ dist-ssr
 *.sln
 *.sw?
 
+*.env
+
 db.json
 
 GEMINI.md

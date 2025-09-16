@@ -8,8 +8,9 @@ import React, { useState, useEffect } from 'react'
 import CalendarView from '@/shared/components/CalendarView'
 import Stack from '@mui/material/Stack'
 import Pagination from '@mui/material/Pagination'
-import { getEventos } from '../api/eventos'
+
 import CircularProgress from '@mui/material/CircularProgress'
+import { getEvents } from '../api/event'
 
 export default function Events() {
   const [view, setView] = useState('grid')
@@ -23,7 +24,7 @@ export default function Events() {
   useEffect(() => {
     const fetchEventos = async () => {
       try {
-        const data = await getEventos()
+        const data = await getEvents()
         setEventos(data)
       } catch (error) {
         console.error('Erro ao buscar eventos:', error)
@@ -37,9 +38,9 @@ export default function Events() {
 
   const eventosFiltrados = eventos.filter((evento) => {
     if (eventType === 'todos') return true
-    if (eventType === 'online') return evento.modalidade === 'online'
-    if (eventType === 'presencial') return evento.modalidade === 'presencial'
-    if (eventType === 'híbrido') return evento.modalidade === 'híbrido'
+    if (eventType === 'online') return evento.modality === 'ONLINE'
+    if (eventType === 'presencial') return evento.modality === 'PRESENTIAL'
+    if (eventType === 'híbrido') return evento.modality === 'HYBRID'
   })
 
   const totalPaginas = Math.ceil(eventosFiltrados.length / eventosPorPagina)
