@@ -1,20 +1,21 @@
 services:
-  frontend-dev:
+  app:
     build:
       context: .
       dockerfile: .docker/node/Dockerfile.dev
       args:
         - NODE_ENV=development
-    container_name: frontend-dev
+    container_name: app-dev
     env_file:
       - .env
     restart: unless-stopped
     ports:
-      - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+      - '${NODE_PORT:-5173}:${NODE_PORT:-5173}'
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=${VITE_API_URL}
-      - VITE_APP_NAME=${VITE_APP_NAME}
+      - NODE_PORT=${NODE_PORT:-5173}
+      - API_URL=${API_URL}
+      - APP_NAME=${APP_NAME}
       - VITE_ENABLE_DEVTOOLS=${VITE_ENABLE_DEVTOOLS}
       - VITE_ENABLE_MOCK_API=${VITE_ENABLE_MOCK_API}
       - CHOKIDAR_USEPOLLING=true
@@ -23,16 +24,13 @@ services:
       - ./:/app/
       - /app/node_modules
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:${VITE_PORT:-5173}']
+      test: ['CMD', 'curl', '-f', 'http://localhost:${NODE_PORT:-5173}']
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
     networks:
       - eventdev-dev-network
-
-volumes:
-  frontend-dev-data:
 
 networks:
   eventdev-dev-network:

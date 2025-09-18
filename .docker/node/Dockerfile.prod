@@ -4,6 +4,9 @@ WORKDIR /app
 ARG NODE_ENV
 ENV NODE_ENV=${NODE_ENV}
 
+ARG NODE_PORT
+ENV NODE_PORT=${NODE_PORT:-5173}
+
 RUN addgroup -g 1001 -S nodejs && adduser -S reactjs -u 1001 -G nodejs
 RUN chown -R reactjs:nodejs /app && chmod -R 755 /app
 
@@ -16,22 +19,12 @@ RUN corepack enable
 RUN corepack prepare pnpm@latest --activate
 
 COPY package*.json pnpm-lock.yaml* ./
+
 RUN chown -R reactjs:nodejs /app
 USER reactjs
 
+ENV NODE_ENV=development
 RUN pnpm install --frozen-lockfile
-
-
-FROM base AS prod-deps
-
-RUN corepack enable
-RUN corepack prepare pnpm@latest --activate
-
-COPY package*.json pnpm-lock.yaml* ./
-RUN chown -R reactjs:nodejs /app
-USER reactjs
-
-RUN pnpm install --frozen-lockfile --prod
 
 
 FROM base AS builder
@@ -40,29 +33,26 @@ RUN corepack enable
 RUN corepack prepare pnpm@latest --activate
 
 COPY --from=deps --chown=reactjs:nodejs /app/node_modules ./node_modules
-COPY . .
-
-RUN chown -R reactjs:nodejs /app
+COPY --chown=reactjs:nodejs . .
 
 USER reactjs
+ENV NODE_ENV=development
+
 RUN pnpm run build
 
 
-FROM base AS app
+FROM nginx:alpine AS app
 
-RUN corepack enable
-RUN corepack prepare pnpm@latest --activate
+# Copy built files to nginx html directory
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-COPY --from=builder --chown=reactjs:nodejs /app/dist ./dist
-COPY --from=builder --chown=reactjs:nodejs /app/package.json ./package.json
+# Copy custom nginx configuration if needed
+# COPY nginx.conf /etc/nginx/nginx.conf
 
-USER reactjs
-EXPOSE 5173
+EXPOSE 80
 
+# Health check for nginx
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:5173 || exit 1
+  CMD curl -f http://localhost/ || exit 1
 
-CMD ["sh", "-c", "\
-  echo 'Starting preview server...' && \
-  exec pnpm preview --host 0.0.0.0 --port 5173 \
-  "]
+CMD ["nginx", "-g", "daemon off;"]

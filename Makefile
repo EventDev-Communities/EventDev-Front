@@ -57,7 +57,7 @@ prod-up: check-env create-networks ## Start production environment
 	@echo " ✦  Starting production environment..."
 	@docker compose -f docker-compose.prod.yml up --build -d --remove-orphans
 	@echo " ✓  Production environment started!"
-	@echo "    Frontend: http://localhost"
+	@echo "    Frontend: http://localhost:5173"
 
 prod-down: ## Stop production environment
 	@echo " ✦  Stopping production environment..."

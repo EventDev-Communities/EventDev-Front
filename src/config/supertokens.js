@@ -6,9 +6,9 @@ import { API_BASE_URL } from './api'
 export const initSuperTokens = () => {
   SuperTokens.init({
     appInfo: {
-      appName: 'EventDev',
-      apiDomain: 'http://localhost:5122',
-      websiteDomain: 'http://localhost:3000',
+      appName: 'EventDev Communities',
+      apiDomain: 'http://api:5122',
+      websiteDomain: 'http://localhost:5173',
       apiBasePath: '/api/v1/auth',
       websiteBasePath: '/auth'
     },
