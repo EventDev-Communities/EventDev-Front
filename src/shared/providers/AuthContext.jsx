@@ -31,7 +31,16 @@ function AuthProvider({ children }) {
 
           if (response.ok) {
             const userData = await response.json()
-            setUser(userData.user)
+            let normalizedUser = userData.user
+            if (normalizedUser && normalizedUser.roles?.includes('community')) {
+              if (normalizedUser.communityId) {
+                normalizedUser = { ...normalizedUser, communityId: normalizedUser.communityId }
+              } else if (normalizedUser.community?.id) {
+                normalizedUser = { ...normalizedUser, communityId: normalizedUser.community.id }
+              }
+            }
+
+            setUser(normalizedUser)
           }
         } catch (error) {
           console.error('Erro ao buscar dados do usuário:', error)

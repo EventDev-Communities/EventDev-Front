@@ -38,19 +38,13 @@ export default function CommunityProfile({ isOwner = false }) {
     const fetchData = async () => {
       try {
         const comunidadeData = await getCommunityBySlug(communityId)
-        console.log('Comunidade carregada:', comunidadeData)
         setComunidade(comunidadeData)
 
         const allEventos = await getEvents()
-        console.log('Todos os eventos carregados:', allEventos)
-        allEventos.forEach((evento, idx) => {
-          console.log(`Evento[${idx}]:`, evento)
-        })
+
         const eventosDaComunidade = allEventos.filter((evento) => {
-          console.log('Verificando evento:', evento)
           return evento.id_community === comunidadeData.id
         })
-        console.log('Eventos filtrados da comunidade:', eventosDaComunidade)
         setEventosDaComunidade(eventosDaComunidade)
       } catch (error) {
         console.error('Erro ao buscar comunidade e eventos:', error)
@@ -121,8 +115,7 @@ export default function CommunityProfile({ isOwner = false }) {
   }
 
   const filteredEventos = eventosDaComunidade.filter((evento) => {
-    const modalidade = (evento.modality || '').toLowerCase() // Mudança aqui
-    console.log('Evento para filtro:', evento)
+    const modalidade = (evento.modality || '').toLowerCase()
     if (eventType === 'todos' || eventType === 'eventos') return true
     if (eventType === 'online') return modalidade === 'online'
     if (eventType === 'presencial') return modalidade === 'presential'
