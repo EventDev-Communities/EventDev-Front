@@ -17,6 +17,7 @@ import EditEvent from './pages/EditEvent'
 
 import { initSuperTokens } from './config/supertokens'
 import AuthProvider from './shared/providers/AuthContext'
+import ProtectedRoute from './shared/components/ProtectedRoute'
 
 // Inicializar SuperTokens antes de qualquer componente
 initSuperTokens()
@@ -49,7 +50,11 @@ export default function App() {
           />
           <Route
             path='/admin'
-            element={<AdminPanel />}
+            element={
+              <ProtectedRoute roles={['admin']}>
+                <AdminPanel />
+              </ProtectedRoute>
+            }
           />
           <Route
             path='/cadastro-comunidade'
