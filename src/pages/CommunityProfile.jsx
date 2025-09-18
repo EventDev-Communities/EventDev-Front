@@ -227,7 +227,7 @@ export default function CommunityProfile({ isOwner = false }) {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteCommunity}
-        communityName={comunidade?.nome}
+        communityName={comunidade?.name}
         isDeleting={isDeleting}
       />
 
