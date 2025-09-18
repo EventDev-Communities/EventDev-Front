@@ -52,7 +52,7 @@ export default function FormLogin() {
             if (userData.user && (userData.user.roles.includes('admin') || userData.user.email === 'admin@eventdev.com')) {
               window.location.href = '/admin'
             } else if (userData.user && userData.user.roles.includes('community')) {
-              window.location.href = '/cadastro-comunidade'
+              window.location.href = '/'
             } else {
               window.location.href = '/eventos'
             }

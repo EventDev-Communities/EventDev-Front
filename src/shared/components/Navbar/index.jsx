@@ -22,6 +22,7 @@ const pages = ['Eventos', 'Comunidades']
 export default function Navbar() {
   const [anchorElNav, setAnchorElNav] = useState(null)
   const [userCommunity, setUserCommunity] = useState(null)
+  const [communityLoading, setCommunityLoading] = useState(false)
   const { isAuthenticated, signOut, user } = useAuth()
 
   // Função para determinar a role principal do usuário
@@ -37,18 +38,27 @@ export default function Navbar() {
     return user.roles[0].toUpperCase()
   }
 
+  // Função para verificar se o usuário tem role community
+  const isCommunityUser = () => {
+    return user && user.roles && user.roles.includes('community')
+  }
+
   useEffect(() => {
     const fetchUserCommunity = async () => {
-      if (isAuthenticated && user && user.roles && user.roles.includes('community')) {
+      if (isAuthenticated && isCommunityUser()) {
+        setCommunityLoading(true)
         try {
           const community = await getUserCommunity()
           setUserCommunity(community)
         } catch (error) {
           console.error('Erro ao buscar comunidade do usuário:', error)
           setUserCommunity(null)
+        } finally {
+          setCommunityLoading(false)
         }
       } else {
         setUserCommunity(null)
+        setCommunityLoading(false)
       }
     }
 
@@ -72,6 +82,35 @@ export default function Navbar() {
       window.location.href = '/login'
     }
   }
+
+  // Função para determinar o link e texto do botão da comunidade
+  const getCommunityButtonProps = () => {
+    if (!isCommunityUser()) return null
+
+    if (communityLoading) {
+      return {
+        text: 'Carregando...',
+        href: '#',
+        disabled: true
+      }
+    }
+
+    if (userCommunity) {
+      return {
+        text: 'Meu Perfil',
+        href: `/meu-perfil/${userCommunity.id}`,
+        disabled: false
+      }
+    } else {
+      return {
+        text: 'Cadastrar Comunidade',
+        href: '/cadastro-comunidade',
+        disabled: false
+      }
+    }
+  }
+
+  const communityButtonProps = getCommunityButtonProps()
 
   return (
     <AppBar
@@ -140,18 +179,77 @@ export default function Navbar() {
               }}
               keepMounted
               transformOrigin={{
-                vertical: 'bottom',
+                vertical: 'top',
                 horizontal: 'right'
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{
-                mt: '55px',
                 display: {
-                  sm: 'flex',
-                  md: 'none'
+                  xs: 'block',
+                  sm: 'none'
+                }
+              }}
+              PaperProps={{
+                sx: {
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  width: '100vw',
+                  height: '100vh',
+                  maxWidth: 'none',
+                  maxHeight: 'calc(100vh - 16px)',
+                  margin: 0,
+                  borderRadius: 0,
+                  backgroundColor: 'white',
+                  boxShadow: 'none',
+                  overflow: 'hidden'
+                }
+              }}
+              MenuListProps={{
+                sx: {
+                  padding: '5rem 2rem 2rem 2rem',
+                  height: '100%',
+                  maxHeight: 'calc(100vh - 3rem)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-start',
+                  gap: '1rem',
+                  overflowY: 'auto'
                 }
               }}>
+              <Box sx={{ position: 'absolute', top: 20, right: 55, zIndex: 10 }}>
+                <IconButton
+                  aria-label='Fechar menu'
+                  onClick={handleCloseNavMenu}
+                  sx={{ color: 'text.main' }}>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='24'
+                    height='24'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'>
+                    <line
+                      x1='18'
+                      y1='6'
+                      x2='6'
+                      y2='18'
+                    />
+                    <line
+                      x1='6'
+                      y1='6'
+                      x2='18'
+                      y2='18'
+                    />
+                  </svg>
+                </IconButton>
+              </Box>
               {[
                 ...pages.map((page) => (
                   <MenuItem
@@ -163,8 +261,7 @@ export default function Navbar() {
                       'textAlign': 'center',
                       'color': 'text.main',
                       '&:hover': {
-                        color: 'primary.main',
-                        backgroundColor: 'transparent'
+                        color: 'primary.main'
                       }
                     }}>
                     {page}
@@ -178,39 +275,34 @@ export default function Navbar() {
                               key='user-role'
                               onClick={handleCloseNavMenu}
                               sx={{
-                                'textAlign': 'center',
-                                'color': 'gray',
-                                'fontWeight': '400',
-                                'fontSize': '0.75rem',
-                                'cursor': 'default',
-                                '&:hover': {
-                                  backgroundColor: 'transparent'
-                                }
+                                textAlign: 'center',
+                                color: 'gray',
+                                fontWeight: '400',
+                                fontSize: '0.75rem',
+                                cursor: 'default'
                               }}>
                               {getUserRole()}
                             </MenuItem>
                           ]
                         : []),
-                      ...(userCommunity
+                      ...(communityButtonProps
                         ? [
                             <MenuItem
-                              key='meu-perfil'
-                              component='a'
-                              href={`/meu-perfil/${userCommunity.id}`}
+                              key='community-action'
+                              component={communityButtonProps.disabled ? 'div' : 'a'}
+                              href={communityButtonProps.disabled ? undefined : communityButtonProps.href}
                               onClick={handleCloseNavMenu}
                               sx={{
-                                'textAlign': 'center',
-                                'color': '#FC692D',
-                                'fontWeight': '600',
-                                'display': 'flex',
-                                'alignItems': 'center',
-                                'gap': 1,
-                                '&:hover': {
-                                  color: 'primary.main',
-                                  backgroundColor: 'transparent'
-                                }
+                                textAlign: 'center',
+                                color: '#FC692D',
+                                fontWeight: '600',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 1,
+                                opacity: communityButtonProps.disabled ? 0.6 : 1,
+                                cursor: communityButtonProps.disabled ? 'default' : 'pointer'
                               }}>
-                              Meu Perfil
+                              {communityButtonProps.text}
                             </MenuItem>
                           ]
                         : [])
@@ -223,8 +315,8 @@ export default function Navbar() {
           <Box
             sx={{
               flexGrow: 1,
-              ml: '0.65rem',
-              columnGap: '10px',
+              ml: '0.5rem',
+              columnGap: '1px',
               display: {
                 xs: 'none',
                 sm: 'flex'
@@ -263,7 +355,13 @@ export default function Navbar() {
             {!isAuthenticated ? (
               <Button
                 variant='contained'
-                onClick={handleLoginClick}>
+                onClick={handleLoginClick}
+                sx={{
+                  display: {
+                    xs: 'none',
+                    sm: 'flex'
+                  }
+                }}>
                 Entrar
               </Button>
             ) : (
@@ -272,26 +370,33 @@ export default function Navbar() {
                   <Typography
                     variant='caption'
                     sx={{
-                      fontSize: '0.75rem',
+                      fontSize: '0.6rem',
                       color: 'gray',
                       fontWeight: 400,
-                      alignSelf: 'center'
+                      alignSelf: 'center',
+                      display: {
+                        xs: 'none',
+                        sm: 'block'
+                      }
                     }}>
                     {getUserRole()}
                   </Typography>
                 )}
-                {userCommunity && (
+                {communityButtonProps && (
                   <Button
                     variant='text'
-                    href={`/meu-perfil/${userCommunity.id}`}
+                    href={communityButtonProps.disabled ? undefined : communityButtonProps.href}
+                    disabled={communityButtonProps.disabled}
                     sx={{
-                      'color': '#FC692D',
-                      'fontWeight': '600',
-                      '&:hover': {
-                        backgroundColor: 'rgba(252, 105, 45, 0.1)'
+                      color: '#FC692D',
+                      fontWeight: '600',
+                      opacity: communityButtonProps.disabled ? 0.6 : 1,
+                      display: {
+                        xs: 'none',
+                        sm: 'flex'
                       }
                     }}>
-                    Meu Perfil
+                    {communityButtonProps.text}
                   </Button>
                 )}
                 <Button
@@ -300,6 +405,10 @@ export default function Navbar() {
                   sx={{
                     'color': '#FC692D',
                     'borderColor': '#FC692D',
+                    'display': {
+                      xs: 'none',
+                      sm: 'flex'
+                    },
                     '&:hover': {
                       backgroundColor: '#E55D2B',
                       borderColor: '#E55D2B',
