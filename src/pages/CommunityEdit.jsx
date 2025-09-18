@@ -22,7 +22,6 @@ const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()
 // Schema ajustado para os nomes corretos
 const communitySchema = z.object({
   nome: z.string().min(1, 'Nome da comunidade é obrigatório'),
-  email: z.string().email('E-mail inválido'),
   descricao: z.string().optional(),
   telefone: z.string().optional(),
   link_website: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
@@ -75,7 +74,6 @@ export default function CommunityEdit() {
 
         reset({
           nome: comunidadeData.nome || '',
-          email: comunidadeData.email || '',
           descricao: comunidadeData.descricao || '',
           telefone: comunidadeData.telefone || '',
           link_website: comunidadeData.link_website || '',
@@ -225,17 +223,7 @@ export default function CommunityEdit() {
             />
           </Box>
 
-          <Box sx={{ display: 'flex', gap: '2rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-            <TextField
-              id='email'
-              label='E-mail'
-              placeholder='ex: contato@community.dev'
-              type='email'
-              {...register('email')}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              sx={{ flex: 1, minWidth: 200 }}
-            />
+          <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>
             <TextField
               id='telefone'
               label='Telefone'

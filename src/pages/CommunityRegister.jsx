@@ -123,26 +123,26 @@ export default function CommunityRegister() {
 
       // Verificar se ainda está logado antes de submeter
       if (!isAuthenticated) {
-        console.error('❌ Usuário não está autenticado')
+        console.error('Usuário não está autenticado')
         setSubmitError('Sessão expirada. Faça login novamente.')
         navigate('/login')
         return
       }
 
       if (!user) {
-        console.error('❌ Dados do usuário não encontrados')
+        console.error('Dados do usuário não encontrados')
         setSubmitError('Erro ao carregar dados do usuário. Tente fazer login novamente.')
         navigate('/login')
         return
       }
 
       if (!user.roles?.includes('community')) {
-        console.error('❌ Usuário não tem role community:', user.roles)
+        console.error('Usuário não tem role community:', user.roles)
         setSubmitError('Apenas usuários de comunidade podem cadastrar comunidades.')
         return
       }
 
-      console.warn('✅ Usuário autorizado a criar comunidade')
+      console.warn('Usuário autorizado a criar comunidade')
 
       const dadosComunidade = {
         nome: data.nomeComunidade,
