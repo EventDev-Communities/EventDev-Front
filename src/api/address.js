@@ -30,7 +30,6 @@ export const createEndereco = async (dadosEndereco) => {
   try {
     const payload = {
       ...dadosEndereco
-      // Removido criado_em e atualizado_em - o backend define automaticamente
     }
 
     const response = await fetch(`${API_BASE_URL}/address`, {

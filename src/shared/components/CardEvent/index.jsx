@@ -35,12 +35,16 @@ export default function CardEvent({ evento, isOwner = false, onEdit, onDelete })
     setConfirmOpen(false)
   }
 
-  const endereco = evento.address
-  const enderecoString = endereco
-    ? `${endereco.streetAddress || ''}${endereco.streetNumber ? `, ${endereco.streetNumber}` : ''}${endereco.neighborhood ? ` - ${endereco.neighborhood}` : ''}${endereco.city ? `, ${endereco.city}` : ''}${endereco.state ? ` - ${endereco.state}` : ''}${endereco.zipCode ? ` (${endereco.zipCode})` : ''}`
-    : evento.modality === 'online'
-      ? 'Evento online'
-      : 'Endereço não informado'
+  const enderecoString = (() => {
+    if (evento.modality === 'ONLINE') return 'Evento online'
+
+    if (evento.address) {
+      const { streetAddress, number, neighborhood, city, state, cep } = evento.address
+      return `${streetAddress || ''}${number ? `, ${number}` : ''}${neighborhood ? ` - ${neighborhood}` : ''}${city ? `, ${city}` : ''}${state ? ` - ${state}` : ''}${cep ? ` (${cep})` : ''}`
+    }
+
+    return 'Endereço não informado'
+  })()
 
   return (
     <Card sx={{ boxSizing: 'border-box', borderRadius: 2, width: '100%' }}>

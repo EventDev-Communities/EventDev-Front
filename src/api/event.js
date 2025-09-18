@@ -42,23 +42,57 @@ export const getEvents = async () => {
 export const createEvent = async (communityId, eventData) => {
   try {
     const payload = {
-      ...eventData,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      title: eventData.title,
+      description: eventData.description,
+      start_date_time: eventData.start_date_time,
+      end_date_time: eventData.end_date_time,
+      modality: eventData.modality,
+      link: eventData.link || null,
+      capa_url: eventData.capa_url || null,
+      is_active: eventData.is_active ?? true,
+
+      ...(eventData.modality !== 'ONLINE' &&
+        eventData.address && {
+          address: {
+            cep: eventData.address.cep,
+            state: eventData.address.state,
+            city: eventData.address.city,
+            neighborhood: eventData.address.neighborhood,
+            streetAddress: eventData.address.streetAddress,
+            number: eventData.address.number
+          }
+        })
     }
 
     const response = await fetch(`${API_BASE_URL}/event/${communityId}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json'
+      },
       credentials: 'include',
       body: JSON.stringify(payload)
     })
 
     if (!response.ok) {
-      throw new Error('Erro ao criar evento')
+      const errorText = await response.text()
+      console.error('Erro da API:', errorText)
+
+      let errorMessage = 'Erro ao criar evento'
+      try {
+        const errorData = JSON.parse(errorText)
+        if (errorData.message) {
+          errorMessage = Array.isArray(errorData.message) ? errorData.message.join(', ') : errorData.message
+        }
+        // eslint-disable-next-line no-unused-vars
+      } catch (e) {
+        errorMessage = `Erro ${response.status}: ${errorText}`
+      }
+
+      throw new Error(errorMessage)
     }
 
-    return await response.json()
+    const result = await response.json()
+    return result
   } catch (error) {
     console.error('Erro ao criar evento:', error)
     throw error

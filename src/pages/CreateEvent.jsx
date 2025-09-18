@@ -123,46 +123,42 @@ export default function CreateEvent() {
     setIsSubmitting(true)
     setSubmitError('')
 
-    console.error('Form data submitted:', data) // Para debug
-
     try {
+      const startDateTime = `${data.data}T${data.horarioInicial}:00`
+      const endDateTime = `${data.data}T${data.horarioFinal}:00`
+
       const novoEvento = {
-        event: {
-          title: data.nomeEvento,
-          description: data.descricaoEvento,
-          start_date_time: `${data.data}T${data.horarioInicial}:00.000Z`,
-          end_date_time: `${data.data}T${data.horarioFinal}:00.000Z`,
-          modality: data.modalidade === 'presencial' ? 'PRESENTIAL' : data.modalidade === 'online' ? 'ONLINE' : 'HYBRID',
-          id_address: 0, // Será criado automaticamente se address for fornecido
-          link: data.link || '',
-          capa_url: '',
-          is_active: true
-        }
+        title: data.nomeEvento,
+        description: data.descricaoEvento,
+        start_date_time: startDateTime,
+        end_date_time: endDateTime,
+        modality: data.modalidade.toUpperCase(),
+        link: data.link || null,
+        capa_url: null,
+        is_active: true,
+        ...(data.modalidade !== 'online' && {
+          address: {
+            cep: data.cep?.replace(/\D/g, '') || '',
+            state: data.estado || '',
+            city: data.cidade || '',
+            neighborhood: data.bairro || '',
+            streetAddress: data.rua || '',
+            number: data.numero || ''
+          }
+        })
       }
 
-      // Se for presencial, adicionar address ao payload
-      if (data.modalidade === 'presencial') {
-        novoEvento.address = {
-          cep: (data.cep || '').replace(/\D/g, ''),
-          streetAddress: data.rua || '',
-          number: data.numero || '',
-          neighborhood: data.bairro || '',
-          city: data.cidade || '',
-          state: data.estado || ''
-        }
-      }
-
-      console.error('Evento to create:', novoEvento) // Para debug
+      console.log('Dados do evento antes do envio:', novoEvento)
 
       await createEvent(comunidadeId, novoEvento)
       setShowSuccessToast(true)
       reset()
       setTimeout(() => {
-        navigate('/eventos')
+        navigate(`/meu-perfil/${comunidadeId}`)
       }, 2000)
     } catch (err) {
       console.error('Erro ao criar evento:', err)
-      setSubmitError('Erro ao criar evento. Tente novamente.')
+      setSubmitError(err.message || 'Erro ao criar evento. Tente novamente.')
     } finally {
       setIsSubmitting(false)
     }
@@ -420,7 +416,7 @@ export default function CreateEvent() {
                   </Typography>
                   <TextField
                     id='cep'
-                    placeholder='Digite o CEP'
+                    placeholder='Digite apenas números'
                     {...register('cep')}
                     error={!!errors.cep || !!cepError}
                     helperText={errors.cep?.message || cepError}
