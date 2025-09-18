@@ -6,9 +6,11 @@ import CardActionArea from '@mui/material/CardActionArea'
 import Link from '@mui/material/Link'
 import Box from '@mui/material/Box'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../providers/useAuth'
 
 export default function FeaturedCard({ comunidade }) {
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const getInitials = (name) => {
     if (!name) return '?'
@@ -26,7 +28,11 @@ export default function FeaturedCard({ comunidade }) {
   const handleLinkClick = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    navigate(`/perfil-comunidade/${comunidade.id}`)
+    if (user?.communityId === comunidade.id) {
+      navigate(`/meu-perfil/${comunidade.id}`)
+    } else {
+      navigate(`/perfil-comunidade/${comunidade.id}`)
+    }
   }
 
   return (
