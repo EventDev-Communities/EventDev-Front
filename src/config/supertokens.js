@@ -7,7 +7,7 @@ export const initSuperTokens = () => {
   SuperTokens.init({
     appInfo: {
       appName: 'EventDev Communities',
-      apiDomain: 'http://api:5122',
+      apiDomain: import.meta.env.VITE_API_URL,
       websiteDomain: 'http://localhost:5173',
       apiBasePath: '/api/v1/auth',
       websiteBasePath: '/auth'
