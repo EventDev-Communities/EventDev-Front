@@ -19,7 +19,6 @@ import { getCommunityById, updateCommunity } from '../api/community'
 
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/
 
-// Schema ajustado para os nomes corretos
 const communitySchema = z.object({
   nome: z.string().min(1, 'Nome da comunidade é obrigatório'),
   descricao: z.string().optional(),
@@ -27,7 +26,8 @@ const communitySchema = z.object({
   link_website: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
   link_instagram: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
   link_linkedin: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
-  link_github: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal(''))
+  link_github: z.string().regex(urlRegex, 'URL inválida. Use formato: https://exemplo.com').optional().or(z.literal('')),
+  logo_url: z.string().optional().or(z.literal(''))
 })
 
 export default function CommunityEdit() {
@@ -49,7 +49,8 @@ export default function CommunityEdit() {
     formState: { errors },
     reset
   } = useForm({
-    resolver: zodResolver(communitySchema)
+    resolver: zodResolver(communitySchema),
+    defaultValues: {}
   })
 
   useEffect(() => {
@@ -73,9 +74,9 @@ export default function CommunityEdit() {
         setComunidade(comunidadeData)
 
         reset({
-          nome: comunidadeData.nome || '',
-          descricao: comunidadeData.descricao || '',
-          telefone: comunidadeData.telefone || '',
+          nome: comunidadeData.nome || comunidadeData.name || '',
+          descricao: comunidadeData.descricao || comunidadeData.description || '',
+          telefone: comunidadeData.telefone || comunidadeData.phone || '',
           link_website: comunidadeData.link_website || '',
           link_instagram: comunidadeData.link_instagram || '',
           link_linkedin: comunidadeData.link_linkedin || '',
@@ -103,7 +104,7 @@ export default function CommunityEdit() {
     try {
       const dataCommunity = {
         ...data,
-        logo_url: uploadedImage || ''
+        logo_url: uploadedImage || comunidade.logo_url || ''
       }
 
       await updateCommunity(communityId, dataCommunity)
@@ -112,7 +113,7 @@ export default function CommunityEdit() {
       setShowSuccessToast(true)
 
       setTimeout(() => {
-        navigate(`/meu-perfil/${comunidade.slug}`)
+        navigate(`/meu-perfil/${comunidade.id}`)
       }, 2000)
     } catch (updateError) {
       setSubmitError(`Erro ao atualizar comunidade: ${updateError.message}`)
