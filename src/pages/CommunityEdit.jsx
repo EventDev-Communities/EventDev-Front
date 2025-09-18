@@ -80,7 +80,8 @@ export default function CommunityEdit() {
           link_website: comunidadeData.link_website || '',
           link_instagram: comunidadeData.link_instagram || '',
           link_linkedin: comunidadeData.link_linkedin || '',
-          link_github: comunidadeData.link_github || ''
+          link_github: comunidadeData.link_github || '',
+          logo_url: comunidadeData.logo_url || ''
         })
 
         if (comunidadeData.logo_url) {
@@ -109,6 +110,7 @@ export default function CommunityEdit() {
 
       await updateCommunity(communityId, dataCommunity)
 
+      setComunidade((prev) => ({ ...prev, ...dataCommunity }))
       setSubmitSuccess(true)
       setShowSuccessToast(true)
 

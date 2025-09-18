@@ -50,7 +50,7 @@ export default function AboutCommunity({ comunidade }) {
   }
 
   // Normalizar dados da comunidade
-  const descricao = comunidade.descricao?.trim() || 'Descrição não disponível'
+  const description = comunidade.description?.trim() || 'Descrição não disponível'
   const hasLinks = comunidade.link_website || comunidade.link_github || comunidade.link_instagram || comunidade.link_linkedin
 
   return (
@@ -64,7 +64,7 @@ export default function AboutCommunity({ comunidade }) {
       <Typography
         variant='body1'
         color='text.secondary'>
-        {descricao}
+        {description}
       </Typography>
 
       {hasLinks && (
