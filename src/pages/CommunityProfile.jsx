@@ -20,7 +20,7 @@ import ToggleCommunityProfile from '@/shared/components/ToggleCommunityProfile'
 import DeleteCommunityDialog from '@/shared/components/DeleteCommunityDialog'
 
 import { deleteEvent, getEvents } from '@/api/event'
-import { deleteCommunity, getCommunityBySlug } from '../api/community'
+import { deleteCommunity, getCommunityById } from '../api/community'
 
 export default function CommunityProfile({ isOwner = false }) {
   const { communityId } = useParams()
@@ -37,7 +37,8 @@ export default function CommunityProfile({ isOwner = false }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const comunidadeData = await getCommunityBySlug(communityId)
+        const comunidadeData = await getCommunityById(communityId)
+
         setComunidade(comunidadeData)
 
         const allEventos = await getEvents()

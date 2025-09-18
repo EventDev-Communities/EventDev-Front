@@ -76,7 +76,7 @@ export default function CommunityEdit() {
         reset({
           nome: comunidadeData.nome || comunidadeData.name || '',
           descricao: comunidadeData.descricao || comunidadeData.description || '',
-          telefone: comunidadeData.telefone || comunidadeData.phone || '',
+          telefone: comunidadeData.telefone || comunidadeData.phone_number || '',
           link_website: comunidadeData.link_website || '',
           link_instagram: comunidadeData.link_instagram || '',
           link_linkedin: comunidadeData.link_linkedin || '',
@@ -227,9 +227,16 @@ export default function CommunityEdit() {
           </Box>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>
+            <Typography
+              component='label'
+              htmlFor='telefone'
+              variant='subtitle1'
+              fontWeight='bold'
+              sx={{ marginBottom: '0.5rem' }}>
+              Telefone:
+            </Typography>
             <TextField
               id='telefone'
-              label='Telefone'
               type='tel'
               placeholder='(85) 99999-9999'
               {...register('telefone')}

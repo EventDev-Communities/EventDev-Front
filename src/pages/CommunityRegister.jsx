@@ -49,32 +49,21 @@ export default function CommunityRegister() {
     resolver: zodResolver(communitySchema)
   })
 
-  // Verificar se o usuário está logado e tem permissão
   useEffect(() => {
-    console.warn('=== VERIFICAÇÃO INICIAL DE AUTENTICAÇÃO ===')
-    console.warn('loading:', loading)
-    console.warn('isAuthenticated:', isAuthenticated)
-    console.warn('user:', user)
-    console.warn('user.email:', user?.email)
-    console.warn('user.roles:', user?.roles)
-    console.warn('==========================================')
-
     if (!loading) {
       if (!isAuthenticated) {
-        console.error('❌ Usuário não está autenticado - redirecionando para login')
+        console.error('Usuário não está autenticado - redirecionando para login')
         setSubmitError('Você precisa estar logado para cadastrar uma comunidade.')
         setTimeout(() => navigate('/login'), 2000)
         return
       }
 
       if (user && !user.roles?.includes('community')) {
-        console.error('❌ Usuário não tem role community:', user.roles, '- redirecionando para home')
+        console.error('Usuário não tem role community:', user.roles, '- redirecionando para home')
         setSubmitError('Apenas usuários de comunidade podem cadastrar comunidades.')
         setTimeout(() => navigate('/'), 2000)
         return
       }
-
-      console.warn('✅ Usuário autorizado - pode acessar página de cadastro de comunidade')
     }
   }, [isAuthenticated, user, loading, navigate])
 
@@ -112,16 +101,6 @@ export default function CommunityRegister() {
     setSubmitSuccess(false)
 
     try {
-      // Logs detalhados para debug
-      console.warn('=== DEBUG INFORMAÇÕES DO USUÁRIO ===')
-      console.warn('isAuthenticated:', isAuthenticated)
-      console.warn('user completo:', user)
-      console.warn('user.email:', user?.email)
-      console.warn('user.roles:', user?.roles)
-      console.warn('user.id:', user?.id)
-      console.warn('====================================')
-
-      // Verificar se ainda está logado antes de submeter
       if (!isAuthenticated) {
         console.error('Usuário não está autenticado')
         setSubmitError('Sessão expirada. Faça login novamente.')
@@ -142,11 +121,9 @@ export default function CommunityRegister() {
         return
       }
 
-      console.warn('Usuário autorizado a criar comunidade')
-
       const dadosComunidade = {
         nome: data.nomeComunidade,
-        descricao: data.descricao || '',
+        description: data.descricao || '',
         telefone: data.telefone || '',
         link_website: data.website || '',
         link_instagram: data.instagram || '',
@@ -156,15 +133,11 @@ export default function CommunityRegister() {
 
       console.warn('uploadedImage:', uploadedImage, 'tipo:', typeof uploadedImage)
 
-      // Adiciona logo_url se houver uma imagem válida
       if (uploadedImage) {
-        // Se for um objeto (upload de arquivo), use a URL gerada
         if (typeof uploadedImage === 'object' && uploadedImage.url) {
           dadosComunidade.logo_url = uploadedImage.url
           console.warn('logo_url adicionado (objeto):', uploadedImage.url)
-        }
-        // Se for uma string (URL direta), use diretamente
-        else if (typeof uploadedImage === 'string' && uploadedImage.trim() !== '') {
+        } else if (typeof uploadedImage === 'string' && uploadedImage.trim() !== '') {
           dadosComunidade.logo_url = uploadedImage
           console.warn('logo_url adicionado (string):', uploadedImage)
         }
@@ -185,7 +158,6 @@ export default function CommunityRegister() {
     } catch (error) {
       console.error('Erro capturado:', error)
 
-      // Verificar se é erro de autenticação
       if (error.message.includes('401') || error.message.includes('Unauthorized')) {
         setSubmitError('Sessão expirada. Faça login novamente.')
         navigate('/login')
@@ -199,12 +171,9 @@ export default function CommunityRegister() {
 
   const handleImageUpload = (imageData) => {
     if (imageData) {
-      // Se for um objeto (upload de arquivo), use a URL gerada
       if (typeof imageData === 'object' && imageData.url) {
         setUploadedImage(imageData.url)
-      }
-      // Se for uma string (URL direta), use diretamente
-      else if (typeof imageData === 'string') {
+      } else if (typeof imageData === 'string') {
         setUploadedImage(imageData)
       }
     } else {
@@ -291,6 +260,26 @@ export default function CommunityRegister() {
               sx={{ marginTop: '0.5rem', color: 'text.secondary' }}>
               Nome pelo qual sua comunidade é conhecida.
             </Typography>
+          </Box>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>
+            <Typography
+              component='label'
+              htmlFor='telefone'
+              variant='subtitle1'
+              fontWeight='bold'
+              sx={{ marginBottom: '0.5rem' }}>
+              Telefone:
+            </Typography>
+            <TextField
+              id='telefone'
+              type='tel'
+              placeholder='(85) 99999-9999'
+              {...register('telefone')}
+              error={!!errors.telefone}
+              helperText={errors.telefone?.message}
+              sx={{ flex: 1, minWidth: 200 }}
+            />
           </Box>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>

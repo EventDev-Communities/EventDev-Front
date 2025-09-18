@@ -132,12 +132,11 @@ export const updateCommunity = async (id, communityData) => {
     email: communityData.email,
     description: communityData.descricao || '',
     phone: communityData.telefone || '',
-    website_url: communityData.link_website || '',
-    instagram_url: communityData.link_instagram || '',
-    linkedin_url: communityData.link_linkedin || '',
-    github_url: communityData.link_github || '',
-    logo_url: typeof communityData.logo_url === 'string' ? communityData.logo_url : communityData.logo_url?.url || '',
-    slug: generateSlug(communityData.nome),
+    link_website: communityData.link_website?.trim() || null,
+    link_instagram: communityData.link_instagram?.trim() || null,
+    link_linkedin: communityData.link_linkedin?.trim() || null,
+    link_github: communityData.link_github?.trim() || null,
+    logo_url: typeof communityData.logo_url === 'string' ? communityData.logo_url : communityData.logo_url?.url || null,
     updated_at: new Date().toISOString()
   }
 
