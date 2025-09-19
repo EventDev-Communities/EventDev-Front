@@ -112,7 +112,19 @@ export default function CardEvent({ evento, isOwner = false, onEdit, onDelete })
               <Typography
                 variant='body2'
                 sx={{ color: '#64748B' }}>
-                {evento.startDate}
+                <Typography
+                  variant='body2'
+                  component='span'
+                  sx={{ color: '#64748B' }}>
+                  {new Intl.DateTimeFormat('pt-BR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'America/Sao_Paulo'
+                  }).format(new Date(evento.start_date_time))}
+                </Typography>
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
