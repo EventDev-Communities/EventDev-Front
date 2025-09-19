@@ -39,9 +39,10 @@ export default function AboutCommunity({ comunidade }) {
           target='_blank'
           rel='noopener'
           underline='hover'
+          color='text.secondary'
           sx={{
+            fontWeight: 400,
             wordBreak: 'break-word',
-            maxWidth: 'calc(100% - 24px)',
             whiteSpace: 'normal'
           }}>
           {url}
@@ -66,7 +67,13 @@ export default function AboutCommunity({ comunidade }) {
           fontSize='small'
           color='action'
         />
-        <Typography sx={{ wordBreak: 'break-word' }}>{phone}</Typography>
+        <Link
+          href={`tel:${phone}`}
+          underline='hover'
+          color='text.secondary'
+          sx={{ fontWeight: 400 }}>
+          {phone}
+        </Link>
       </Box>
     )
   }
@@ -85,7 +92,8 @@ export default function AboutCommunity({ comunidade }) {
       </Typography>
       <Typography
         variant='body1'
-        color='text.secondary'>
+        color='text.secondary'
+        component='div'>
         {description}
       </Typography>
 

@@ -144,6 +144,8 @@ export default function Navbar() {
         <Toolbar
           sx={{
             paddingX: '0 !important',
+            flexGrow: 1,
+            justifyContent: 'flex-end',
             width: {
               sm: '100%'
             }
@@ -151,12 +153,37 @@ export default function Navbar() {
           <Box
             sx={{
               flexGrow: 0,
-              mr: '0.65rem',
+              paddingX: 0,
               display: {
                 xs: 'flex',
                 sm: 'none'
-              }
+              },
+              alignItems: 'center',
+              gap: 1,
+              mr: '0.65rem'
             }}>
+            {!isAuthenticated ? (
+              <Button
+                variant='contained'
+                onClick={handleLoginClick}>
+                Entrar
+              </Button>
+            ) : (
+              <Button
+                variant='outlined'
+                onClick={handleLoginClick}
+                sx={{
+                  'color': '#FC692D',
+                  'borderColor': '#FC692D',
+                  '&:hover': {
+                    backgroundColor: '#E55D2B',
+                    borderColor: '#E55D2B',
+                    color: 'white'
+                  }
+                }}>
+                Sair
+              </Button>
+            )}
             <IconButton
               id='long-button'
               aria-label='more'
@@ -174,13 +201,13 @@ export default function Navbar() {
               id='long-menu'
               anchorEl={anchorElNav}
               anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right'
+                vertical: 'bottom',
+                horizontal: 'left'
               }}
               keepMounted
               transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right'
+                vertical: 'bottom',
+                horizontal: 'left'
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
@@ -210,7 +237,7 @@ export default function Navbar() {
               }}
               MenuListProps={{
                 sx: {
-                  padding: '5rem 2rem 2rem 2rem',
+                  padding: 0,
                   height: '100%',
                   maxHeight: 'calc(100vh - 3rem)',
                   display: 'flex',
@@ -220,7 +247,7 @@ export default function Navbar() {
                   overflowY: 'auto'
                 }
               }}>
-              <Box sx={{ position: 'absolute', top: 20, right: 55, zIndex: 10 }}>
+              <Box sx={{ position: 'absolute', top: 0, right: 0, zIndex: 300, paddingX: '.8rem' }}>
                 <IconButton
                   aria-label='Fechar menu'
                   onClick={handleCloseNavMenu}
@@ -250,77 +277,80 @@ export default function Navbar() {
                   </svg>
                 </IconButton>
               </Box>
-              {[
-                ...pages.map((page) => (
-                  <MenuItem
-                    key={page}
-                    component='a'
-                    href={`/${page.toLowerCase()}`}
-                    onClick={handleCloseNavMenu}
-                    sx={{
-                      'textAlign': 'center',
-                      'color': 'text.main',
-                      '&:hover': {
-                        color: 'primary.main'
-                      }
-                    }}>
-                    {page}
-                  </MenuItem>
-                )),
-                ...(isAuthenticated
-                  ? [
-                      ...(getUserRole()
-                        ? [
-                            <MenuItem
-                              key='user-role'
-                              onClick={handleCloseNavMenu}
-                              sx={{
-                                textAlign: 'center',
-                                color: 'gray',
-                                fontWeight: '400',
-                                fontSize: '0.75rem',
-                                cursor: 'default'
-                              }}>
-                              {getUserRole()}
-                            </MenuItem>
-                          ]
-                        : []),
-                      ...(communityButtonProps
-                        ? [
-                            <MenuItem
-                              key='community-action'
-                              component={communityButtonProps.disabled ? 'div' : 'a'}
-                              href={communityButtonProps.disabled ? undefined : communityButtonProps.href}
-                              onClick={handleCloseNavMenu}
-                              sx={{
-                                textAlign: 'center',
-                                color: '#FC692D',
-                                fontWeight: '600',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 1,
-                                opacity: communityButtonProps.disabled ? 0.6 : 1,
-                                cursor: communityButtonProps.disabled ? 'default' : 'pointer'
-                              }}>
-                              {communityButtonProps.text}
-                            </MenuItem>
-                          ]
-                        : [])
-                    ]
-                  : [])
-              ]}
+              <Box sx={{ paddingTop: '5rem', paddingX: '2rem', paddingBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {[
+                  ...pages.map((page) => (
+                    <MenuItem
+                      key={page}
+                      component='a'
+                      href={`/${page.toLowerCase()}`}
+                      onClick={handleCloseNavMenu}
+                      sx={{
+                        'textAlign': 'center',
+                        'color': 'text.main',
+                        '&:hover': {
+                          color: 'primary.main'
+                        }
+                      }}>
+                      {page}
+                    </MenuItem>
+                  )),
+                  ...(isAuthenticated
+                    ? [
+                        ...(getUserRole()
+                          ? [
+                              <MenuItem
+                                key='user-role'
+                                onClick={handleCloseNavMenu}
+                                sx={{
+                                  textAlign: 'center',
+                                  color: 'gray',
+                                  fontWeight: '400',
+                                  fontSize: '0.75rem',
+                                  cursor: 'default'
+                                }}>
+                                {getUserRole()}
+                              </MenuItem>
+                            ]
+                          : []),
+                        ...(communityButtonProps
+                          ? [
+                              <MenuItem
+                                key='community-action'
+                                component={communityButtonProps.disabled ? 'div' : 'a'}
+                                href={communityButtonProps.disabled ? undefined : communityButtonProps.href}
+                                onClick={handleCloseNavMenu}
+                                sx={{
+                                  textAlign: 'center',
+                                  color: '#FC692D',
+                                  fontWeight: '600',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 1,
+                                  opacity: communityButtonProps.disabled ? 0.6 : 1,
+                                  cursor: communityButtonProps.disabled ? 'default' : 'pointer'
+                                }}>
+                                {communityButtonProps.text}
+                              </MenuItem>
+                            ]
+                          : [])
+                      ]
+                    : [])
+                ]}
+              </Box>
             </Menu>
           </Box>
 
           <Box
             sx={{
-              flexGrow: 1,
-              ml: '0.5rem',
-              columnGap: '1px',
+              flexGrow: 0,
+              paddingX: 0,
               display: {
                 xs: 'none',
                 sm: 'flex'
-              }
+              },
+              alignItems: 'center',
+              gap: 1
             }}>
             {pages.map((page) => (
               <Button
@@ -342,26 +372,10 @@ export default function Navbar() {
                 {page}
               </Button>
             ))}
-          </Box>
-
-          <Box
-            sx={{
-              flexGrow: 0,
-              paddingX: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1
-            }}>
             {!isAuthenticated ? (
               <Button
                 variant='contained'
-                onClick={handleLoginClick}
-                sx={{
-                  display: {
-                    xs: 'none',
-                    sm: 'flex'
-                  }
-                }}>
+                onClick={handleLoginClick}>
                 Entrar
               </Button>
             ) : (
@@ -373,11 +387,7 @@ export default function Navbar() {
                       fontSize: '0.6rem',
                       color: 'gray',
                       fontWeight: 400,
-                      alignSelf: 'center',
-                      display: {
-                        xs: 'none',
-                        sm: 'block'
-                      }
+                      alignSelf: 'center'
                     }}>
                     {getUserRole()}
                   </Typography>
@@ -390,11 +400,7 @@ export default function Navbar() {
                     sx={{
                       color: '#FC692D',
                       fontWeight: '600',
-                      opacity: communityButtonProps.disabled ? 0.6 : 1,
-                      display: {
-                        xs: 'none',
-                        sm: 'flex'
-                      }
+                      opacity: communityButtonProps.disabled ? 0.6 : 1
                     }}>
                     {communityButtonProps.text}
                   </Button>
@@ -405,10 +411,6 @@ export default function Navbar() {
                   sx={{
                     'color': '#FC692D',
                     'borderColor': '#FC692D',
-                    'display': {
-                      xs: 'none',
-                      sm: 'flex'
-                    },
                     '&:hover': {
                       backgroundColor: '#E55D2B',
                       borderColor: '#E55D2B',

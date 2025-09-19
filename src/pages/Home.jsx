@@ -46,17 +46,17 @@ export default function Home() {
 
     return eventos
       .filter((evento) => {
-        const start = new Date(evento.data_hora_inicial)
+        const start = new Date(evento.start_date_time)
         if (isNaN(start) || start < now) return false // ignora inválidos e passados
 
         if (eventType === 'online') {
-          return evento.modalidade === 'online' || evento.modalidade === 'híbrido'
+          return evento.modality === 'online' || evento.modality === 'hybrid'
         }
 
         return true
       })
       .sort((a, b) => {
-        return new Date(a.data_hora_inicial) - new Date(b.data_hora_inicial)
+        return new Date(a.start_date_time) - new Date(b.start_date_time)
       })
   }, [eventos, eventType])
 
