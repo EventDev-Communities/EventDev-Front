@@ -2,10 +2,15 @@
   "name": "event-dev-communities",
   "type": "module",
   "version": "0.0.0",
+  "engines": {
+    "node": " 22.x",
+    "pnpm": "10.x"
+  },
   "private": true,
-  "packageManager": "pnpm@10.17.0",
+  "packageManager": "pnpm@10.23.0",
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 5173",
+    "env:setup": "node scripts/env-setup.js",
+    "dev": "pnpm run env:setup &&vite --host 0.0.0.0 --port 5173",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
@@ -15,9 +20,8 @@
     "prepare": "husky",
     "server": "json-server --watch server/db.json --port 4000",
     "setup": "pnpm install && pnpm run prepare && pnpm run husky:setup",
-    "check-blocked-files": "git diff --cached --name-only | grep -Fx -e '.vscode/settings.json' -e '.env' -e '.husky/pre-commit' -e '.husky/commit-msg' && echo '✖ Forbidden files staged' && exit 1 || exit 0",
-    "husky:setup": "node -e \"const fs=require('fs'); const path=require('path'); const huskyDir='.husky'; if(!fs.existsSync(huskyDir)) fs.mkdirSync(huskyDir); fs.writeFileSync(path.join(huskyDir,'pre-commit'),'#!/bin/sh\\n\\npnpm lint-staged && npx validate-branch-name && pnpm run check-blocked-files\\n',{mode:0o755}); fs.writeFileSync(path.join(huskyDir,'commit-msg'),'#!/bin/sh\\n\\nnpx --no-install commitlint --edit \\\"$1\\\"\\n',{mode:0o755}); console.log('Husky: Hooks criados com sucesso!')\"",
-    "postinstall": "node -e \"if (require('fs').existsSync('.git')) { console.log('Repositório Git encontrado. Configurando Husky...'); require('child_process').execSync('pnpm run husky:setup', {stdio: 'inherit'}); } else { console.log('Repositório Git ausente. Pulando setup do Husky.'); }\"",
+    "check-blocked-files": "node scripts/check-blocked-files.js",
+    "husky:setup": "node scripts/setup-husky.js",
     "health": "curl -f http://localhost:5173 || echo 'Frontend not responding'"
   },
   "dependencies": {

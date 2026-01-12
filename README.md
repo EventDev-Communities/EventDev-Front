@@ -2,21 +2,17 @@
 
 Frontend da plataforma EventDev construído com React, Vite, Material-UI e TypeScript.
 
-## Setup Rápido
+## Ferramentas necessárias
+
+- [**node.js**](https://nodejs.org/en/download)
+- [**docker**](https://www.docker.com/get-started/)
+- [**pnpm**](https://pnpm.io/pt/installation)
 
 ### Desenvolvimento Local
 
 ```bash
-pnpm install       # ou pnpm run setup
-pnpm run dev
-```
-
-### Desenvolvimento com Docker
-
-```bash
-make setup-dev     # Criar .env
-make dev-up        # Iniciar containers
-make dev-logs      # Ver logs
+pnpm install #para instalar dependências
+pnpm run dev #para iniciar o servidor de desenvolvimento
 ```
 
 ## Comandos Disponíveis
